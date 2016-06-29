@@ -1,8 +1,6 @@
 ---
-layout: post
 title: Segfault в MySQL при старте демона
-modified: 2015-06-17
-tags: [MySQL, troubleshooting]
+tags: [mysql, troubleshooting]
 ---
 Перезагрузка сервера посредством нажатия кнопки “Reset” чревата последствиями.
 
@@ -11,7 +9,7 @@ tags: [MySQL, troubleshooting]
 Однажды после жёсткой перезагрузки сервера демон MySQL перестал запускаться – при старте в нём возникала ошибка сегментации.
 Первый шаг любой диагностики – просмотр логов демона.
 
-{% highlight console %}
+```
 140101  2:04:00 [Note] Plugin 'FEDERATED' is disabled.
 InnoDB: The InnoDB memory heap is disabled
 InnoDB: Mutexes and rw_locks use GCC atomic builtins
@@ -57,7 +55,7 @@ stack_bottom = (nil) thread_stack 0x40000
 /lib/libpthread.so.0(+0x68c4) [0x7fcc80a7e8c4]
 /lib/libc.so.6(clone+0x6d) [0x7fcc7fc27fdd]
 The manual page at http://dev.mysql.com/doc/mysql/en/crashing.html contains information that should help you find out what is causing the crash.
-{% endhighlight %}
+```
 
 Видим, что ошибка сегментации возникает при воспроизведении redo-логов. В таком случае надо запустить демон с `innodb_force_recovery = 6` (включается SRV_FORCE_NO_LOG_REDO). После этого выполнить `SET GLOBAL innodb_fast_shutdown = 0` и остановить MySQL штатными средствами. Затем отключить `innodb_force_recovery`. После этого демон запустится.
 

@@ -1,8 +1,6 @@
 ---
-layout: post
 title: Отключение Zend Memory Manager
-modified: 2015-06-17
-tags: [PHP, Apache]
+tags: [php, apache]
 ---
 Интерпретатор PHP Zend Engine включает в себя такой компонент как Zend Memory Manager.
 Таким образом, PHP сам управляет памятью, позволяя отслеживать выделения памяти для предотвращения утечек и ограничивать потребление памяти для каждого отдельно взятого сценария.
@@ -10,15 +8,15 @@ tags: [PHP, Apache]
 
 Если вы используете Apache, наиболее удобные способы установить данную переменную – добавить в init-скрипт веб-сервера строку
 
-{% highlight console %}
+```
 export USE_ZEND_ALLOC=0
-{% endhighlight %}
+```
 
 или указать в конфигурационном файле Apache директиву
 
-{% highlight console %}
+```
 SetEnv USE_ZEND_ALLOC 0
-{% endhighlight %}
+```
 
 Ссылки:
 [http://www.php.net/manual/en/internals2.memory.php](http://www.php.net/manual/en/internals2.memory.php)

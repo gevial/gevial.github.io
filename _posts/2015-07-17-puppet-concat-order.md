@@ -13,20 +13,21 @@ tags: [puppet, troubleshooting]
 По факту (по крайней мере в Puppet 3.7) integer не сработает. Нужно указывать string. Ниже пример.
 
 Плохо:
-{% highlight console %}
+
+```puppet
 concat::fragment { 'opening':
   target  => $::dummy_module::conf::conf_path,
   order   => 1,
   content => "databases = {\n",
 }
-{% endhighlight %}
+```
 
 Хорошо:
-{% highlight console %}
+
+```puppet
 concat::fragment { 'opening':
   target  => $::dummy_module::conf::conf_path,
   order   => '01',
   content => "databases = {\n",
 }
-{% endhighlight %}
-
+```

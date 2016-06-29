@@ -1,8 +1,6 @@
 ---
-layout: post
 title: Настройка стека nginx – uwsgi – web2py в CentOS
-modified: 2015-06-17
-tags: [nginx, uwsgi, web2py, python]
+tags: [nginx, python, uwsgi]
 ---
 Как сообщает Википедия, WSGI – это простой и универсальный низкоуровневый интерфейс между веб-сервером и веб-приложением/фреймворком, написанном на Python’е.
 
@@ -13,7 +11,7 @@ nginx имеет нативную поддержку uwsgi, что не може
 
 Настройка nginx заключается в создании нового блока `server{}`, пример конфигурации для web2py:
 
-{% highlight console %}
+```
 server {
     listen          80;
     server_name     web2py.example.com;
@@ -28,21 +26,21 @@ server {
         uwsgi_param     UWSGI_SCHEME $scheme;
     }
 }
-{% endhighlight %}
+```
 
 Фактически, достаточно указать директиве `uwsgi_pass` сокет демона uWSGI (TCP/IP или Unix domain) и подключить директивы из файла `uwsgi_params`, входящего в стандартную поставку nginx.
 
 Настройка uWSGI заключается в настройке родительского процесса, называемого Emperor, и одного или нескольких “вассалов” – пулов обработчиков. Надо лишь не забыть помимо самого uwsgi установить к нему плагин python:
 
-{% highlight console %}
+```
 yum install uwsgi-plugin-python
-{% endhighlight %}
+```
 
 Дело в том, что uwsgi, как я уже говорил – middleware, бэкендом может служить не только Python, но и PHP, Perl, Ruby, Lua, Go и пр. Вообще uwsgi богат возможностями – поддерживает различные модели управления обработчиками (prefork, threaded, asynchronous/evented, green thread/coroutine), кластеризацию, мониторинг и т.д.
 
 Вот пример конфигурационного файла “императора” и пула для web2py.
 
-{% highlight ini %}
+```ini
 [uwsgi]
 uid = uwsgi
 gid = uwsgi
@@ -52,9 +50,9 @@ stats = /run/uwsgi/stats.sock
 emperor-tyrant = true
 cap = setgid,setuid
 plugins = python
-{% endhighlight %}
+```
 
-{% highlight xml %}
+```xml
 <uwsgi>
     <uid>nginx</uid>
     <gid>nginx</gid>
@@ -72,7 +70,7 @@ plugins = python
     <reload-on-rss>192</reload-on-rss>
     <no-orphans/>
 </uwsgi>
-{% endhighlight %}
+```
 
 Теперь о подводных камнях.
 

@@ -2,7 +2,7 @@
 layout: post
 title: Хранимые процедуры и кодировка
 modified: 2015-09-24
-tags: [sql, mysql, performance]
+tags: [mysql, performance]
 ---
 
 Столкнулись с серьёзной деградацией производительности хранимых функций MySQL на реплике.
@@ -11,7 +11,7 @@ tags: [sql, mysql, performance]
 
 Мастер:
 
-{% highlight console %}
+```
 mysql> SELECT SUM(cost) FROM ... LEFT JOIN ... WHERE customer_id = 'johndoe' AND end_date < NOW() AND NOT g.name <=> "certificate";
 +-----------+
 | SUM(cost) |
@@ -20,11 +20,11 @@ mysql> SELECT SUM(cost) FROM ... LEFT JOIN ... WHERE customer_id = 'johndoe' AND
 +-----------+
 1 row in set (0.00 sec)
 
-{% endhighlight %}
+```
 
 Реплика:
 
-{% highlight console %}
+```
 mysql> SELECT SUM(cost) FROM ... LEFT JOIN ... WHERE customer_id = NAME_CONST('customer',_utf8'johndoe' COLLATE 'utf8_general_ci') AND end_date < NOW() AND NOT g.name <=> "certificate";
 +-----------+
 | SUM(cost) |
@@ -34,7 +34,7 @@ mysql> SELECT SUM(cost) FROM ... LEFT JOIN ... WHERE customer_id = NAME_CONST('c
 1 row in set (1.64 sec)
 
 mysql>
-{% endhighlight %}
+```
 
 На реплике происходит перевод аргумента функции в другую кодировку. Из-за того, что в запросе поле _customer_id_ сравнивается с результатом встроенной функции, а не с константой, не используется индекс. Из-за этого и происходит деградация производительности.
 

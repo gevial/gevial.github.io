@@ -8,6 +8,6 @@ tags: [hardware]
 
 Можно запустить сканирование подключённых к SATA-контроллеру устройств:
 
-{% highlight console %}
+```
 echo "- - -" > /sys/class/scsi_host/host0/scan
-{% endhighlight %}
+```

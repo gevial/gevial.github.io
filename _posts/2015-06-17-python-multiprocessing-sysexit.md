@@ -1,7 +1,5 @@
 ---
-layout: post
 title: multiprocessing.Process и sys.exit()
-modified: 2015-06-17
 tags: [python]
 ---
 Мониторинг времени отклика серверов хостинга мы мониторим так.
