@@ -1,0 +1,44 @@
+---
+layout: post
+title: Статистика времени выполнения запросов в MySQL
+modified: 2015-06-17
+tags: [mysql]
+---
+В MySQL существует возможность логирования “медленных” запросов.
+
+В такой лог будут записаны все запросы, выполнение которых заняло более `long_query_time` секунд. Безусловно, анализ slow_log’а может помочь найти узкое место. Но, несмотря на то, что `long_query_time` можно указывать с точностью до микросекунд, бывает необходимо проанализировать общую статистику времени исполнения запросов.
+
+Командой Percona реализована такая возможность. Посмотреть распределение можно с помощью запросов.
+
+{% highlight console %}
+mysql> SHOW QUERY_RESPONSE_TIME;
+time                   count   total
+0.000001               0       0.000000
+0.000010               0       0.000000
+0.000100               1       0.000072
+0.001000               0       0.000000
+0.010000               0       0.000000
+0.100000               0       0.000000
+1.000000               0       0.000000
+10.000000              8       47.268416
+100.000000             0       0.000000
+1000.000000            0       0.000000
+10000.000000           0       0.000000
+100000.000000          0       0.000000
+1000000.000000         0       0.000000
+TOO LONG QUERY         0       0.000000
+{% endhighlight %}
+
+Эти данные хранятся в таблице *INFORMATION_SCHEMA.QUERY_RESPONSE_TIME*. Например, приведённый вывод означает, что с момента запуска сервера 1 запрос был выполнен за время 0.000010 с < t < 0.000100 с, общее время выполнения запросов в данной категории – 0.000072 с. Также 8 запросов были выполнены за время 1 с < t < 10 с каждый, общее время – 47.268416 с.
+Сбросить данные можно с помощью запроса
+
+{% highlight console %}
+mysql> FLUSH QUERY_RESPONSE_TIME;
+{% endhighlight %}
+
+Вообще данный функционал имеет множество различных настроек. Полная документация опубликована на сайте Percona. Разумеется, статистика недоступна в оригинальной MySQL, а лишь в Percona Server и в MariaDB.
+
+Ссылки:
+[http://www.percona.com/doc/percona-server/5.5/diagnostics/response_time_distribution.html](http://www.percona.com/doc/percona-server/5.5/diagnostics/response_time_distribution.html)
+[https://mariadb.com/kb/en/query_response_time-plugin/](https://mariadb.com/kb/en/query_response_time-plugin/)
+[http://dev.mysql.com/doc/refman/5.5/en/slow-query-log.html](http://dev.mysql.com/doc/refman/5.5/en/slow-query-log.html)
