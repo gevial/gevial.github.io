@@ -29,3 +29,11 @@ SLA (Service Level Agreement) - формальный договор между �
 
 ### Как правильно проводить postmortem-анализ
 Postmortem - анализ аварии, который выполняется после восстановления работы в спокойной обстановке. Другое название -  Root Cause Analysis (RCA).
+Postmortem должен покрывать следующие базовые вещи:
+
+1.	 A description of the incident
+2.	 A description of the root cause
+3.	 How the incident was stabilized and/or fixed
+4.	 A timeline of actions taken to resolve the incident
+5.	 How the incident affected customers
+6.	 Remediations or corrective actions
