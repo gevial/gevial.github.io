@@ -9,6 +9,7 @@ tags: [book]
 ### What Is a Postmortem?
 
 A postmortem needs to cover these essentials at a minimum:
+
 1. A description of the incident
 2. A description of the root cause
 3. How the incident was stabilized and/or fixed
