@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Gevial&#39;s Tech Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Gevial's Tech Blog">
+<meta property="og:url" content="http://yoursite.com/page/4/index.html">
+<meta property="og:site_name" content="Gevial's Tech Blog">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Gevial's Tech Blog">
+  
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/tags">Tags</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <section id="main" class="outer">
+      <article id="post-2016-07-03-web-operations-sla" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/11/26/2016-07-03-web-operations-sla/">Из книги &quot;Web Operations&quot; - Составление SLA</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/11/26/2016-07-03-web-operations-sla/" class="article-date">
+  <time datetime="2016-11-26T19:10:11.000Z" itemprop="datePublished">2016-11-26</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Прочёл превосходную книгу - “Web Operations: Keeping the Data on Time”. Авторы: John Allspaw, Jesse Robbins. ISBN-13: 978-1449377441.</p>
+<p>Несмотря на то, что книга вышла в 2010-ом, информация в ней остаётся актуальной для многих компаний.</p>
+<p>Также в книге изложены организационные принципы, которые вряд ли устареют в ближайшем будущем.</p>
+<p>Хочу особо выделить некоторые моменты из книги, раскидаю по отдельным постам.</p>
+<h3 id="Составление-SLA"><a href="#Составление-SLA" class="headerlink" title="Составление SLA"></a>Составление SLA</h3><p>SLA (Service Level Agreement) - формальный договор между заказчиком услуги и её поставщиком, содержащий описание услуги, права и обязанности сторон, а также согласованный уровень качества предоставления данной услуги.</p>
+<blockquote>
+<p>User-facing SLAs have several components (see Table 11-2). You need to be specific about these so that there’s no doubt whether an SLA was violated when someone claims that a problem occurred.</p>
+</blockquote>
+<p>Привожу таблицу 11-2.</p>
+<table>
+<thead>
+<tr>
+<th>SLA component</th>
+<th>What it means</th>
+<th>How it’s expressed</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Task being measured</td>
+<td>The thing being tested — the business process or function itself</td>
+<td>This is usually expressed as a name or description of the test; avoid using just the url or page name as it makes the test harder to read.</td>
+<td>“Updating  a contact  record”</td>
+</tr>
+<tr>
+<td>Metric being  calculated</td>
+<td>The element of latency that’s being computed. If you can’t control it, it shouldn’t be in your SLA.</td>
+<td>This is a measurement  that is specific and can be reproduced across systems. You should know, for example, that “page load time” means “from the first DNS lookup to the browser’s <code>onLoad</code> event.”</td>
+<td>“Host latency”</td>
+</tr>
+<tr>
+<td>Calculation</td>
+<td>The math used to generate the number</td>
+<td>Unfortunately, this is usually an average. Don’t do this. Averages suck. Insist on a percentile (or  at the very least a trimmed  mean), and a single bad measurement won’t ruin an otherwise good month.</td>
+<td>“95th percentile”</td>
+</tr>
+<tr>
+<td>Valid times</td>
+<td>The times and days when the metric is valid. If you don’t include this, you won’t have room for maintenance. Some business processes matter at only certain times.</td>
+<td>This is expressed as hours, days, and time zones.</td>
+<td>“8:00 a.m. to 9:00  p.m., pST, Monday to Friday”</td>
+</tr>
+<tr>
+<td>Test conditions (or filters)</td>
+<td>The circumstances of the test or the visits included in the report: - For synthetic monitoring, this may be an agreed- upon external service provider. - For RUM, it may be all visits from a particular client, location, IP range, or some other segment.</td>
+<td>This is expressed as operating systems, network locations, browsers, user accounts, source IP ranges, and so on.</td>
+<td>“Domestic United States on a PC running IE7”</td>
+</tr>
+<tr>
+<td>Time span</td>
+<td>The time over which the calculation is performed</td>
+<td>This is expressed as a time range, often a day, week, or month.</td>
+<td>“In a 30-day period”</td>
+</tr>
+</tbody>
+</table>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/book/">book</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-2016-10-28-web-operations-data-assets" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/11/26/2016-10-28-web-operations-data-assets/">Из книги &quot;Web Operations&quot; - Data Assets</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/11/26/2016-10-28-web-operations-data-assets/" class="article-date">
+  <time datetime="2016-11-26T19:10:11.000Z" itemprop="datePublished">2016-11-26</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Продолжаю постить выдержки из книги “Web Operations: Keeping the Data on Time”.</p>
+<p>На этот раз речь пойдёт об одной полезной практике. Она заключается в составлении таблицы, каждая строка в которой - какой-то ресурс данных вашей компании, будь то база данных, пользовательские данные, репозитории с кодом. Штука в том, что в эту таблицы обязательно должны быть записаны и бэкапы. Лучше всего проиллюстрировать эту технику готовой таблицей из книги.</p>
+<p>Таблица 14-5 из книги.<br>RTO - recovery-time objective, RPO - recovery-point objective.</p>
+<blockquote>
+<p>RTOs define the maximum length of time it should take to recover from any sort of disruption of service. Let’s say your expensive NAS appliance goes down, and part of your site depends on it. You’ll need to know how long the system can reasonably be unavailable before it has a serious negative impact on your product or users. It’s important that you talk with your product people to figure out how long the system can be down (and data inaccessible) before the business side of things starts to unravel. This is something you’ll want to know and agree upon before something bad happens.</p>
+<p>RPOs describe the maximum amount of data loss that is acceptable after a disruption of service. The amount of data loss is usually measured in time. Let’s say the crops database I described earlier is backed up nightly at 10:00. If the storage system melts down and loses all its data at 9:00 p.m., the only backup you have is from 10:00 the night before, and you will have lost about a day’s worth of data if you restore from that backup. This means the maximum RPO for this system is about 24 hours, the time elapsed between nightly backups.</p>
+</blockquote>
+<p>|Location|System|System Type|Data type|RTO|RPO|Business impact|Data protection|<br>|San Diego|database1.sd|Storage system|Database|10 minutes|15 minutes|Users can’t harvest crops or plant new crops|Nightly backups; local replication;  application-consistent snapshots every hour; continuously back up transaction logs from master to VTL|<br>|San Diego|database2.sd|Storage system|Database|4 hours|2 hours|No local replica for primary crops database|Remote replica|<br>|New York|database3.ny|Storage system|Database|4 hours|2 hours|No remote replica for primary crops database|None|<br>|San Diego|vtl1.sd|VTL|Database backups and transaction logs|12 hours|24 hours|Can’t back up or recover the crops database or transaction logs|None|</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/book/">book</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-2016-09-27-web-operations-postmortem" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/11/26/2016-09-27-web-operations-postmortem/">Из книги &quot;Web Operations&quot; - Postmortem (RCA)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/11/26/2016-09-27-web-operations-postmortem/" class="article-date">
+  <time datetime="2016-11-26T19:10:11.000Z" itemprop="datePublished">2016-11-26</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Продолжаю постить выдержки из книги “Web Operations: Keeping the Data on Time”.</p>
+<p>В этом посте речь пойдёт о проведении Postmortem, или Root-Cause Analysis (RCA). По сути, это - анализ произошедшей аварии. В книге действительно хорошо всё описано, поэтому выдержки приведу as is.</p>
+<h3 id="What-Is-a-Postmortem"><a href="#What-Is-a-Postmortem" class="headerlink" title="What Is a Postmortem?"></a>What Is a Postmortem?</h3><p>A postmortem needs to cover these essentials at a minimum:</p>
+<ol>
+<li>A description of the incident</li>
+<li>A description of the root cause</li>
+<li>How the incident was stabilized and/or fixed</li>
+<li>A timeline of actions taken to resolve the incident</li>
+<li>How the incident affected customers</li>
+<li>Remediations or corrective actions</li>
+</ol>
+<p>The first five items make sure everyone involved has a common understanding of the facts. Many incidents reoccur because people do not understand what really happened and how the problem was fixed. Different teams and different layers of management arrive at the postmortem with different understandings of what happened. During a postmortem, everyone with significant involvement in the incident should be present at the same time to document a common description of the facts of the incident. Without an accurate account of the facts, it will be impossible to determine and prioritize the corrective actions that are the biggest benefit of a postmortem.</p>
+<p>Determining the root cause should go without saying, but I can’t tell you the number of times I have been in a postmortem where participants spent tons of time debating each possible remediation item or the number of customers affected, only to find that they had wasted their time because they didn’t have the root cause right.</p>
+<p>The same goes for the stabilizing steps. Often during the chaos of a major incident, multiple people attempt multiple fixes. Determine the true root cause and the step that brought it to stable before moving on. Note that an incident might be stable without actually being fixed. You can eliminate customer impact without fixing an issue like when you reboot servers to address a memory leak. Although it will be stable for a short period, the servers are just going to run out of memory again if the root cause is not addressed.</p>
+<p>A timeline will be important for determining how the incident could have been fixed more quickly. Again, multiple people may have a different understanding of the time- line. Allow each participant to contribute the items they are aware of before moving to remediation items around decreasing Time to Resolve (TTR). Make sure to answer the following questions:</p>
+<ul>
+<li>When did the incident begin to affect customers? (Note: Not all incidents affect customers.)</li>
+<li>When did someone in the organization first become aware that there was a problem?</li>
+<li>How did this person become aware? Through monitoring? The Customer Care team? A personal report?</li>
+<li>How long did it take for the knowledge of the incident to get to the person who ultimately resolved it?</li>
+<li>What would have allowed someone to diagnose the fault earlier? (For example, better monitoring, more comprehensive troubleshooting guides, etc.)</li>
+<li>Did the stabilizing steps take a long time to implement? Could they be automated or simplified to speed them up?</li>
+</ul>
+<p>Reducing the TTR of an incident is every bit as important as eliminating incidents themselves. Ultimately, total customer impact minutes (TTR × Number of Customers Affected) is what counts. Some outages may be unavoidable, but if you can ensure quick recovery, your customers will benefit.</p>
+<p>After determining the customer impact, you may want to assign a severity level to the incident. You can develop your own severity categories, or use this example:</p>
+<p>Severity 1: site outages affecting a significant number of customers</p>
+<p>Severity 2: site degradation, performance issues, or broken features which are difficult to work around</p>
+<p>Severity 3: other service issues that have minimal customer impact or easy workarounds</p>
+<p>Assigning a severity level will help you to prioritize completion of your remediation items and is also useful during the triage stage of an active incident. You may have already assigned a severity level while attempting to resolve the issue so that you could determine whether it is a five-alarm fire requiring all hands on deck or a minor blip.</p>
+<h3 id="When-to-Conduct-a-Postmortem"><a href="#When-to-Conduct-a-Postmortem" class="headerlink" title="When to Conduct a Postmortem."></a>When to Conduct a Postmortem.</h3><p>You should conduct a postmortem after every major outage that affects customers, preferably within 24 hours. This is a little more difficult than it sounds. Teams are usually busy. They are especially busy right after an incident occurs, because they probably spent unplanned cycles on firefighting. Some of the firefighters may have been up all night resolving the incident. Once an incident is stable, people have a tendency to get back to whatever they were doing before they were interrupted to try to make up for lost time.</p>
+<p>The important thing to note is that until a postmortem is conducted and corrective actions are identified, your site is at risk of repeating the incident. If you can’t conduct the postmortem within 24 hours, don’t wait any longer than a week. After a week, incident participants will start to forget key details; you may be missing key logfiles; and of course, you remain at risk for reoccurrence.</p>
+<p>Although it’s good to complete a postmortem within 24 hours, you should not conduct a postmortem while the incident is still open. Trying to determine preventive actions or assign blame is a distraction that teams don’t need while they are attempting to stabi- lize the service. Remember, this process is ultimately intended to benefit your customers, and the process should never directly get in the way of restoring service to them.</p>
+<h3 id="Postmortem-Follow-Up"><a href="#Postmortem-Follow-Up" class="headerlink" title="Postmortem Follow-Up"></a>Postmortem Follow-Up</h3><p>…</p>
+<p>After many years of postmortems, I’ve found a few areas that you will likely want to consider for corrective actions. I call this <em>site operability</em>.</p>
+<p><em>Eliminate single points of failure</em></p>
+<p>Hardware can and will fail. Utilize redundancy to protect yourself. Don’t let hardware failure be a cause of a customer-impacting incident.</p>
+<p><em>Capacity planning</em></p>
+<p>Understand your site and its future capacity needs. Base your capacity planning on total utilization of primary constraints such as CPU, memory, I/O, and storage, not on secondary constraints such as number of users. Provision in the areas you need, before you need them.</p>
+<p><em>Monitoring</em></p>
+<p>This is essential for detecting and diagnosing incidents. Other chapters in this book provide great recommendations for monitoring techniques.</p>
+<p><em>Release management</em></p>
+<p>Change is historically the most likely cause of incidents. Make sure your release process has the right quality controls in place. Consider implementing concepts such as automated testing, staging environments, limited production deployments, dark launches (rolling out code without activating functionality for customers until the code is proven stable), and the ability to roll back immediately.</p>
+<p><em>Operational architecture reviews</em></p>
+<p>Hold an architecture review that is entirely focused on how the new release or product will perform in the production environment before rolling it out to customers. Consider maintainability, failure scenarios, and incident response as well as architectural reliability and scalability.</p>
+<p><em>Configuration management</em></p>
+<p>As your systems grow, production configurations become increasingly ­complicated. The inability to understand the implications of changes to production configurations often leads to incidents attributed to human error. Having a configuration management system that is straightforward and logical will help engineers avoid unintended issues. Read Chapter 5 in this book for more recommendations.</p>
+<p><em>On-call and escalation process</em></p>
+<p>Identify the issue and get it to the person who can resolve it as quickly as possible.</p>
+<p><em>Unstable components</em></p>
+<p>Identify and fix software components with a history of crashing and unintended behavior. Make it a priority even when there is an easy manual fix. Those manual fixes add up to become a drag on customer experience and your ability to scale and be effective.</p>
+<p>By proactively ensuring that your site is operable, you will be able to avoid many painful postmortems before they are even necessary.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/book/">book</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-2016-11-13-openapi" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  <h1 itemprop="name">
+    <a class="article-title" href="https://www.openapis.org/" target="_blank" itemprop="url">Открытая спецификация Open API Specification</a>
+  </h1>
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/11/26/2016-11-13-openapi/" class="article-date">
+  <time datetime="2016-11-26T19:10:11.000Z" itemprop="datePublished">2016-11-26</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Смотрел трансляцию конференции Highload++. Один из докладчиков был из Zalando - один из крупнейших в Европе онлайн-продавцов одежды и обуви (представьте себе нашу Lamoda, только в 50 раз крупнее). Он сказал, что у них микросервисная архитектура, и каджый сервис должен соответствовать OpenAPI (бывшая Swagger API Specification). Сохраняю ссылку себе, т.к. использование OAI - best practice в проектировании API.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/api/">api</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/development/">development</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/11/13/hello-world/">Hello World</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/11/13/hello-world/" class="article-date">
+  <time datetime="2016-11-13T16:43:07.000Z" itemprop="datePublished">2016-11-13</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new <span class="string">"My New Post"</span></div></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo server</div></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate</div></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+
+      
+    </div>
+    
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <nav id="page-nav">
+        <a class="extend prev" rel="prev" href="/page/3/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span>
+      </nav>
+    </section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Gennady Aleksandrov&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/ppoffice">PPOffice</a>
+    </div>
+  </div>
+</footer>
+    
+
+<script src="/js/jquery.min.js"></script>
+
+
+
+<script src="/js/script.js"></script>
+  </div>
+</body>
+</html>

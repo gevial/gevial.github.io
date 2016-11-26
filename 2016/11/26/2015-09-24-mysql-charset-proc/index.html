@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Хранимые процедуры и кодировка - Gevial&#39;s Tech Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Столкнулись с серьёзной деградацией производительности хранимых функций MySQL на реплике.
+Выяснилось, что запросы к хранимой функции выполняются слишком долго. Анализ PROCESSLIST’а выявил, что на маст">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Хранимые процедуры и кодировка">
+<meta property="og:url" content="http://yoursite.com/2016/11/26/2015-09-24-mysql-charset-proc/index.html">
+<meta property="og:site_name" content="Gevial's Tech Blog">
+<meta property="og:description" content="Столкнулись с серьёзной деградацией производительности хранимых функций MySQL на реплике.
+Выяснилось, что запросы к хранимой функции выполняются слишком долго. Анализ PROCESSLIST’а выявил, что на маст">
+<meta property="og:updated_time" content="2016-11-26T19:10:11.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Хранимые процедуры и кодировка">
+<meta name="twitter:description" content="Столкнулись с серьёзной деградацией производительности хранимых функций MySQL на реплике.
+Выяснилось, что запросы к хранимой функции выполняются слишком долго. Анализ PROCESSLIST’а выявил, что на маст">
+  
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/tags">Tags</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <section id="main" class="outer"><article id="post-2015-09-24-mysql-charset-proc" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Хранимые процедуры и кодировка
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/11/26/2015-09-24-mysql-charset-proc/" class="article-date">
+  <time datetime="2016-11-26T19:10:11.000Z" itemprop="datePublished">2016-11-26</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Столкнулись с серьёзной деградацией производительности хранимых функций MySQL на реплике.</p>
+<p>Выяснилось, что запросы к хранимой функции выполняются слишком долго. Анализ PROCESSLIST’а выявил, что на мастере и на реплике запросы, выполняющиеся внутри функции, выглядят по-рзному.</p>
+<p>Мастер:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">mysql&gt; SELECT SUM(cost) FROM ... LEFT JOIN ... WHERE customer_id = &apos;johndoe&apos; AND end_date &lt; NOW() AND NOT g.name &lt;=&gt; &quot;certificate&quot;;</div><div class="line">+-----------+</div><div class="line">| SUM(cost) |</div><div class="line">+-----------+</div><div class="line">|        50 |</div><div class="line">+-----------+</div><div class="line">1 row in set (0.00 sec)</div></pre></td></tr></table></figure>
+<p>Реплика:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">mysql&gt; SELECT SUM(cost) FROM ... LEFT JOIN ... WHERE customer_id = NAME_CONST(&apos;customer&apos;,_utf8&apos;johndoe&apos; COLLATE &apos;utf8_general_ci&apos;) AND end_date &lt; NOW() AND NOT g.name &lt;=&gt; &quot;certificate&quot;;</div><div class="line">+-----------+</div><div class="line">| SUM(cost) |</div><div class="line">+-----------+</div><div class="line">|        50 |</div><div class="line">+-----------+</div><div class="line">1 row in set (1.64 sec)</div><div class="line"></div><div class="line">mysql&gt;</div></pre></td></tr></table></figure>
+<p>На реплике происходит перевод аргумента функции в другую кодировку. Из-за того, что в запросе поле _customer<em>id</em> сравнивается с результатом встроенной функции, а не с константой, не используется индекс. Из-за этого и происходит деградация производительности.</p>
+<p>Причина оказалась в том, что база данных на реплике создана с другими CHARACTER SET и COLLATION, нежели чем на мастере (utf8 против koi8r).</p>
+<p>Как временное решение пришлось изменить код функции на реплике, явно указав аргументу <code>customer</code> кодировку koi8r. Чтобы предотвратить появление таких ситуаций в будущем, надо лишь выполнить <code>ALTER SCHEMA billing CHARACTER SET = &quot;koi8r&quot; COLLATE = &quot;koi8r_general_ci&quot;</code>.</p>
+<p>Ссылки по теме:</p>
+<ol>
+<li><a href="http://www.justincarmony.com/blog/2011/02/02/mysql-stored-procedure-name_const-and-character-sets/" target="_blank" rel="external"> http://www.justincarmony.com/blog/2011/02/02/mysql-stored-procedure-name_const-and-character-sets/</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/performance/">performance</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/11/26/2015-09-07-mysql-ip/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Сравнение IP-адресов в MySQL
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/11/26/2015-10-12-puppet-cert-error-header-too-long/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Ошибка puppet cert - header too long&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Gennady Aleksandrov&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/ppoffice">PPOffice</a>
+    </div>
+  </div>
+</footer>
+    
+
+<script src="/js/jquery.min.js"></script>
+
+
+
+<script src="/js/script.js"></script>
+  </div>
+</body>
+</html>

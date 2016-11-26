@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Назначение интерфейсу нескольких IP-адресов при загрузке - Gevial&#39;s Tech Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="В RHEL-совместимых дистрибутивах конфигурация сетевых интерфейсов хранится в файлах /etc/sysconfig/network-scripts/ifcfg-&amp;lt;iface&amp;gt;. Пример файла ifcfg-eth0:
+123456789DEVICE=&amp;quot;eth0&amp;quot;IPADDR0">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Назначение интерфейсу нескольких IP-адресов при загрузке">
+<meta property="og:url" content="http://yoursite.com/2016/11/26/2015-06-17-several-ip-assign/index.html">
+<meta property="og:site_name" content="Gevial's Tech Blog">
+<meta property="og:description" content="В RHEL-совместимых дистрибутивах конфигурация сетевых интерфейсов хранится в файлах /etc/sysconfig/network-scripts/ifcfg-&amp;lt;iface&amp;gt;. Пример файла ifcfg-eth0:
+123456789DEVICE=&amp;quot;eth0&amp;quot;IPADDR0">
+<meta property="og:updated_time" content="2016-11-26T19:10:11.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Назначение интерфейсу нескольких IP-адресов при загрузке">
+<meta name="twitter:description" content="В RHEL-совместимых дистрибутивах конфигурация сетевых интерфейсов хранится в файлах /etc/sysconfig/network-scripts/ifcfg-&amp;lt;iface&amp;gt;. Пример файла ifcfg-eth0:
+123456789DEVICE=&amp;quot;eth0&amp;quot;IPADDR0">
+  
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/tags">Tags</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <section id="main" class="outer"><article id="post-2015-06-17-several-ip-assign" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Назначение интерфейсу нескольких IP-адресов при загрузке
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/11/26/2015-06-17-several-ip-assign/" class="article-date">
+  <time datetime="2016-11-26T19:10:11.000Z" itemprop="datePublished">2016-11-26</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>В RHEL-совместимых дистрибутивах конфигурация сетевых интерфейсов хранится в файлах <code>/etc/sysconfig/network-scripts/ifcfg-&lt;iface&gt;</code>. Пример файла <code>ifcfg-eth0</code>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">DEVICE=&quot;eth0&quot;</div><div class="line">IPADDR0=&quot;1.2.3.4&quot;</div><div class="line">NETMASK0=&quot;255.255.255.0&quot;</div><div class="line">BROADCAST0=&quot;1.2.3.255&quot;</div><div class="line">GATEWAY=&quot;1.2.3.1&quot;</div><div class="line">IPADDR1=&quot;5.6.7.8&quot;</div><div class="line">NETMASK1=&quot;255.255.0.0&quot;</div><div class="line">BROADCAST1=&quot;5.6.255.255&quot;</div><div class="line">ONBOOT=&quot;yes&quot;</div></pre></td></tr></table></figure>
+<p>При такой конфигурации интерфейс eth0 при загрузке получит два сетевых адреса с разной маской, также в таблицу маршрутизации будет добавлена указанная запись для шлюза по умолчанию.<br>В Debian и дистрибутивах, основанных на нём, конфигурация хранится в одном файле - <code>/etc/network/interfaces</code>. Debian Handbook рекомендует добавлять в этот файл дополнительные секции с параметрами псевдонимов. Пример файла:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">auto eth0</div><div class="line">iface eth0 inet static</div><div class="line">address 11.2.3.4</div><div class="line">netmask 255.255.255.0</div><div class="line">gateway 11.2.3.1</div><div class="line">dns-nameservers 8.8.8.8 8.8.4.4</div><div class="line"></div><div class="line">iface eth0 inet static</div><div class="line">address 192.168.1.66</div><div class="line">netmask 255.255.255.0</div><div class="line"></div><div class="line">auto lo</div><div class="line">iface lo inet loopback</div></pre></td></tr></table></figure>
+<p>Наиболее удобный способ предоставляет дистрибутив Gentoo. Примерное содержание файла конфигурации сети <code>/etc/conf.d/net</code>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">config_eth0=(</div><div class="line">    &quot;1.2.3.4/24&quot;</div><div class="line">    &quot;5.6.7.8/16&quot;</div><div class="line">)</div><div class="line">routes_eth0=( &quot;default via 1.2.3.1&quot; )</div></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/network/">network</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/11/26/2015-06-17-sata-host-scan/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Инициализация сканирования устройств SATA-контроллером в Linux
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/11/26/2015-06-19-debug-502-php/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Отладка ошибки 502, вызываемой падением PHP-сценария&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Gennady Aleksandrov&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/ppoffice">PPOffice</a>
+    </div>
+  </div>
+</footer>
+    
+
+<script src="/js/jquery.min.js"></script>
+
+
+
+<script src="/js/script.js"></script>
+  </div>
+</body>
+</html>

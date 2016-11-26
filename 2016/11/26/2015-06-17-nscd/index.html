@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Кэширование ответов DNS с помощью nscd - Gevial&#39;s Tech Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="nscd - Name Services Caching Daemon.
+nscd кэширует ответы различных служб имён. Чаще всего его настраивают ради кэширования ответов DNS. Не стоит путать nscd с кэширующим DNS-сервером – он им не являе">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Кэширование ответов DNS с помощью nscd">
+<meta property="og:url" content="http://yoursite.com/2016/11/26/2015-06-17-nscd/index.html">
+<meta property="og:site_name" content="Gevial's Tech Blog">
+<meta property="og:description" content="nscd - Name Services Caching Daemon.
+nscd кэширует ответы различных служб имён. Чаще всего его настраивают ради кэширования ответов DNS. Не стоит путать nscd с кэширующим DNS-сервером – он им не являе">
+<meta property="og:updated_time" content="2016-11-26T19:10:11.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Кэширование ответов DNS с помощью nscd">
+<meta name="twitter:description" content="nscd - Name Services Caching Daemon.
+nscd кэширует ответы различных служб имён. Чаще всего его настраивают ради кэширования ответов DNS. Не стоит путать nscd с кэширующим DNS-сервером – он им не являе">
+  
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/tags">Tags</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <section id="main" class="outer"><article id="post-2015-06-17-nscd" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Кэширование ответов DNS с помощью nscd
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/11/26/2015-06-17-nscd/" class="article-date">
+  <time datetime="2016-11-26T19:10:11.000Z" itemprop="datePublished">2016-11-26</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>nscd - Name Services Caching Daemon.</p>
+<p>nscd кэширует ответы различных служб имён. Чаще всего его настраивают ради кэширования ответов DNS. Не стоит путать nscd с кэширующим DNS-сервером – он им не является, кэш используется локально. Для использования кэширования в файле <code>/etc/nsswitch.conf</code> строка <code>hosts</code> должна иметь следующий вид:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">hosts: cache files dns</div></pre></td></tr></table></figure>
+<p>nscd является гибким инструментом, позволяет настраивать Positive и Negative TTL, persistence кэша при перезапуске демона, особое поведение при запросе имени, для которого есть запись в <code>/etc/hosts</code>. В man-страницах nscd и nscd.conf все нюансы расписаны очень подробно.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/dns/">dns</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/11/26/2015-06-17-puppet-error-400/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Puppet Error 400
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/11/26/2015-06-17-python-multiprocessing-sysexit/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">multiprocessing.Process и sys.exit()&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Gennady Aleksandrov&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/ppoffice">PPOffice</a>
+    </div>
+  </div>
+</footer>
+    
+
+<script src="/js/jquery.min.js"></script>
+
+
+
+<script src="/js/script.js"></script>
+  </div>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>multiprocessing.Process и sys.exit() - Gevial&#39;s Tech Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Мониторинг времени отклика серверов хостинга мы мониторим так.
+Есть скрипт, который берёт список серверов и запрашивает с каждого веб-страничку (Wordpress с плагином Query Monitor), парсит оттуда врем">
+<meta property="og:type" content="article">
+<meta property="og:title" content="multiprocessing.Process и sys.exit()">
+<meta property="og:url" content="http://yoursite.com/2016/11/26/2015-06-17-python-multiprocessing-sysexit/index.html">
+<meta property="og:site_name" content="Gevial's Tech Blog">
+<meta property="og:description" content="Мониторинг времени отклика серверов хостинга мы мониторим так.
+Есть скрипт, который берёт список серверов и запрашивает с каждого веб-страничку (Wordpress с плагином Query Monitor), парсит оттуда врем">
+<meta property="og:updated_time" content="2016-11-26T19:10:11.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="multiprocessing.Process и sys.exit()">
+<meta name="twitter:description" content="Мониторинг времени отклика серверов хостинга мы мониторим так.
+Есть скрипт, который берёт список серверов и запрашивает с каждого веб-страничку (Wordpress с плагином Query Monitor), парсит оттуда врем">
+  
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/tags">Tags</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <section id="main" class="outer"><article id="post-2015-06-17-python-multiprocessing-sysexit" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      multiprocessing.Process и sys.exit()
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/11/26/2015-06-17-python-multiprocessing-sysexit/" class="article-date">
+  <time datetime="2016-11-26T19:10:11.000Z" itemprop="datePublished">2016-11-26</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Мониторинг времени отклика серверов хостинга мы мониторим так.</p>
+<p>Есть скрипт, который берёт список серверов и запрашивает с каждого веб-страничку (Wordpress с плагином Query Monitor), парсит оттуда время генерации страницы и время работы БД, по пути считает время скачивания странички со всей статикой.<br>Сначала опрос происходил последовательно в цикле, но это не есть путь самурая, поэтому решено было распараллелить процесс.<br>Сперва взгляд лёг на модуль threading. Однако я тогда ещё не ощутил на практике недостатки GIL (Global Interpreter Lock). Дело обернулось тем, что для каждого сервера время скачивания было 6-7 секунд, хотя настоящее значение лежит в пределах секунды. Так произошло как раз из-за GIL: таймеры в потоках были запущены, но фактически выполнялся лишь один поток, остальные продолжали ждать.</p>
+<p>Тогда я решил поменять threading на multiprocessing, благо у них очень похожая семантика объектов.<br>Я вынес рабочий код из подкласса <code>threading.Thread</code> в функцию (не стал делать подкласс <code>multiprocessing.Process</code>, так как захотелось использовать пул подпроцессов - <code>multiprocessing.Pool</code>, а он не поддерживает создание чайлдов из кастомных классов), функция в зависимости от статуса исполнения завершалась <code>sys.exit(0)</code> или <code>sys.exit(1)</code>. Но мой код не заработал.</p>
+<p>Проблема заключалась в том, что, после обработки всех серверов, скрипт и его дочерние процесы продолжали работать. <code>strace</code> показал, что они висят в ожидании мьютекса. По всей видимости, <code>multiprocessing.Process</code> оборачивает полезный код, передаваемый в виде функции, дополнительными вызовами, в частности, отпускает мьютекс. В моей функции был вызов <code>sys.exit()</code>, поэтому этот код никогда не вызывался. Это лишь предположение, но факт оказался фактом: когда я поменял <code>sys.exit()</code> на <code>return</code>, скрипт и его подпроцессы успешно завершались.</p>
+<p>Вывод: не используйте <code>sys.exit()</code> в функции, передаваемой в качестве <code>target</code> экземпляру <code>multiprocessing.Process</code>.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/11/26/2015-06-17-nscd/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Кэширование ответов DNS с помощью nscd
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/11/26/2015-06-17-reinstall-grub/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Сервер не загружается после замены диска&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Gennady Aleksandrov&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/ppoffice">PPOffice</a>
+    </div>
+  </div>
+</footer>
+    
+
+<script src="/js/jquery.min.js"></script>
+
+
+
+<script src="/js/script.js"></script>
+  </div>
+</body>
+</html>
