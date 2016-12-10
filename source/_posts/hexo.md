@@ -1,5 +1,5 @@
 ---
-title: hexo
+title: Hexo
 date: 2016-12-10 16:20:02
 tags: hexo
 ---
