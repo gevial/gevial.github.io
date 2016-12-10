@@ -13,7 +13,8 @@ db.json
 public```
 ### Установка темы
 Ставить темы в Hexo очень просто и удобно. Находим понравившуюся тему в разделе [темы](https://hexo.io/themes/) официального сайта. Далее добавляем её в репозиторий блога как модуль:
-```git submodule add {theme-github-url} themes/{theme-name}```
+```
+git submodule add {theme-github-url} themes/{theme-name}```
 И указываем в конфиге блога  `_config.yml` имя новой темы.
 ### Деплой
 Настраиваем деплой в ветку `master` в соответствии с [инструкцией](https://hexo.io/docs/deployment.html#Git) официального сайта.
