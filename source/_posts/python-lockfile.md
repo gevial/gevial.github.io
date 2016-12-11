@@ -1,7 +1,7 @@
 ---
 title: "Локфайлы в Python"
 date: 2016-12-11 15:07:33
-tags: programming, python, ipc
+tags: [programming, python, ipc]
 ---
 Появилась необходимость исключить параллельный запуск скрипта на Python. Вспомнил про пакет `lockfile`, однако выяснилось, что он находится в статусе deprecated.
 
