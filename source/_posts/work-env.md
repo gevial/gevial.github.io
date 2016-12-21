@@ -31,21 +31,34 @@ xkb_symbols "winkeys" {
 
 * autocomplete-python
 * build
-* busy
 * file-icons
 * git-plus
 * hyperclick _(В сочетании с autocomplete-python даёт возможность Ctrl-кликнуть на символ в коде, чтобы перейти к его определению)_
 * language-puppet
-* linter
 * linter-flake8
 * linter-puppet-lint
 * linter-rubocop
 * minimap
+* go-plus
+
+Также меня не устраивают дефолтные цвета подсветки диффов в git-plus. Поэтому я добавил вот такой кусок кода в свой `styles.less`:
+```less
+atom-text-editor::shadow {
+  .markup.removed.diff {
+    border-bottom: none!important;
+    background-color: tint(@syntax-color-removed, 30%);
+  }
+  .markup.added.diff {
+    border-bottom: none!important;
+    background-color: tint(@syntax-color-added, 30%);
+  }
+}
+```
 
 ## Build
 Удобно писать код в Atom и тестировать его запуском на удалённом сервере через SSH. Для этого я написал build-сценарий для соответствующего модуля:
 
-```
+```json
 {
   "name": "Runscript",
   "cmd": "echo 'Choose target'",
