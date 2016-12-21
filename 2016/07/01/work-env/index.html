@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Настройка рабочего окружения - Gevial&#39;s Tech Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Вот как я настраиваю рабочее окружение.
+Клавиша “#”Мне не нужен символ номера (shift+3 на русской раскладке). Но я часто пользуюсь символом #. Это нумерованный список в Redmine плюс ссылки на задачи н">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Настройка рабочего окружения">
+<meta property="og:url" content="https://gevial.github.io/2016/07/01/work-env/index.html">
+<meta property="og:site_name" content="Gevial's Tech Blog">
+<meta property="og:description" content="Вот как я настраиваю рабочее окружение.
+Клавиша “#”Мне не нужен символ номера (shift+3 на русской раскладке). Но я часто пользуюсь символом #. Это нумерованный список в Redmine плюс ссылки на задачи н">
+<meta property="og:updated_time" content="2016-12-21T15:25:48.888Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Настройка рабочего окружения">
+<meta name="twitter:description" content="Вот как я настраиваю рабочее окружение.
+Клавиша “#”Мне не нужен символ номера (shift+3 на русской раскладке). Но я часто пользуюсь символом #. Это нумерованный список в Redmine плюс ссылки на задачи н">
+  
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/tags">Tags</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://gevial.github.io"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <section id="main" class="outer"><article id="post-work-env" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Настройка рабочего окружения
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/07/01/work-env/" class="article-date">
+  <time datetime="2016-07-01T09:00:00.000Z" itemprop="datePublished">2016-07-01</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Вот как я настраиваю рабочее окружение.</p>
+<h2 id="Клавиша-“-”"><a href="#Клавиша-“-”" class="headerlink" title="Клавиша “#”"></a>Клавиша “#”</h2><p>Мне не нужен символ номера (shift+3 на русской раскладке). Но я часто пользуюсь символом #. Это нумерованный список в Redmine плюс ссылки на задачи начинаются также с #. В Ubuntu 16.04 исправить недоразумение и сделать так, чтобы в русской раскладке также печатался символ #, можно, отредактировав файл <code>/usr/share/X11/xkb/symbols/ru</code>. Достаточно закомментировать строку 13 (это секция, где переопределяются значения сочетаний shift+цифра). Вот эту строку, если быть точным:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">// Keyboard layouts for Russia.</div><div class="line">// AEN &lt;aen@logic.ru&gt;</div><div class="line">// 2001/12/23 by Leon Kanter &lt;leon@blackcatlinux.com&gt;</div><div class="line">// 2005/12/09 Valery Inozemtsev &lt;shrek@altlinux.ru&gt;</div><div class="line"></div><div class="line">// Windows layout</div><div class="line">default  partial alphanumeric_keys</div><div class="line">xkb_symbols &quot;winkeys&quot; &#123;</div><div class="line"></div><div class="line">    include &quot;ru(common)&quot;</div><div class="line">    name[Group1]= &quot;Russian&quot;;</div><div class="line"></div><div class="line">//    key &lt;AE03&gt; &#123; [           3,  numerosign  ] &#125;;</div><div class="line">    key &lt;AE04&gt; &#123; [           4,   semicolon  ] &#125;;</div><div class="line">    key &lt;AE05&gt; &#123; [           5,     percent  ] &#125;;</div></pre></td></tr></table></figure>
+<h2 id="Редактор"><a href="#Редактор" class="headerlink" title="Редактор"></a>Редактор</h2><p>Лучший редактор для меня - Atom. Список модулей, которые я использую:</p>
+<ul>
+<li>autocomplete-python</li>
+<li>build</li>
+<li>busy</li>
+<li>file-icons</li>
+<li>git-plus</li>
+<li>hyperclick <em>(В сочетании с autocomplete-python даёт возможность Ctrl-кликнуть на символ в коде, чтобы перейти к его определению)</em></li>
+<li>language-puppet</li>
+<li>linter</li>
+<li>linter-flake8</li>
+<li>linter-puppet-lint</li>
+<li>linter-rubocop</li>
+<li>minimap</li>
+</ul>
+<h2 id="Build"><a href="#Build" class="headerlink" title="Build"></a>Build</h2><p>Удобно писать код в Atom и тестировать его запуском на удалённом сервере через SSH. Для этого я написал build-сценарий для соответствующего модуля:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">  &quot;name&quot;: &quot;Runscript&quot;,</div><div class="line">  &quot;cmd&quot;: &quot;echo &apos;Choose target&apos;&quot;,</div><div class="line">  &quot;sh&quot;: true,</div><div class="line">  &quot;targets&quot;: &#123;</div><div class="line">    &quot;host_accessed_with_fabric&quot;: &#123; &quot;cmd&quot;: &quot;fab -f /home/gena/rexec.py -H srvname runscript:\&quot;&#123;FILE_ACTIVE&#125;\&quot;&quot; &#125;,</div><div class="line">    &quot;host_accessed_with_plain_ssh&quot;: &#123; &quot;cmd&quot;: &quot;scp &#123;FILE_ACTIVE&#125; srvname:~/atom-build.script; ssh srvname ~g.aleksandrov/atom-build.script; ssh srvname rm ~g.aleksandrov/atom-build.script&quot; &#125;,</div><div class="line">    &quot;local_python&quot;: &#123; &quot;cmd&quot;: &quot;python &#123;FILE_ACTIVE&#125;&quot; &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="ssh-config"><a href="#ssh-config" class="headerlink" title=".ssh/config"></a>.ssh/config</h2><p>Мы используем SSH-шлюз, доступ на сервера осуществляется через него. Для тестирования скриптов это не очень удобно, иногда нужен прямой доступ. Его можно получить, настроив SSH-клиент, вот конфиг:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">Host gateway</div><div class="line">    Hostname gateway.example.com</div><div class="line">    User g.aleksandrov</div><div class="line">    IdentityFile ~/.ssh/g.aleksandrov-tw_key</div><div class="line"></div><div class="line">Host directaccess</div><div class="line">    Hostname directaccess.example.com</div><div class="line">    User root</div><div class="line">    IdentityFile ~/.ssh/g.aleksandrov-tw_key</div><div class="line"></div><div class="line">Host gitlab.example.com</div><div class="line">    User git</div><div class="line">    IdentityFile ~/.ssh/g.aleksandrov-tw_key</div><div class="line"></div><div class="line">Host github.com</div><div class="line">    User git</div><div class="line">    IdentityFile ~/Dropbox/keys/github_main_key</div><div class="line"></div><div class="line">Host !gateway* !directaccess* !gitlab.example.com !github.com !*.* *</div><div class="line">    User root</div><div class="line">    ProxyCommand ssh gateway -W %h:22</div><div class="line">    IdentityFile ~/.ssh/id_rsa.admins</div><div class="line">    StrictHostKeyChecking no</div></pre></td></tr></table></figure>
+<p>При таком конфиге доступ на любой сервер будет осуществляться через gateway. За исключением, кхм, исключений.</p>
+<h2 id="Fabric"><a href="#Fabric" class="headerlink" title="Fabric"></a>Fabric</h2><p>Для выполнения команд/скриптов на удалённых серверах я написал fabfile. Вот его шаблон:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div></pre></td><td class="code"><pre><div class="line"><span class="comment">#!/usr/bin/python</span></div><div class="line"></div><div class="line"><span class="keyword">from</span> fabric.api <span class="keyword">import</span> run, task, env, put, settings, hosts</div><div class="line"><span class="keyword">from</span> fabric.state <span class="keyword">import</span> output</div><div class="line"></div><div class="line"></div><div class="line">env.use_ssh_config = <span class="keyword">True</span></div><div class="line">env.colorize_errors = <span class="keyword">True</span></div><div class="line">env.warn_only = <span class="keyword">True</span></div><div class="line">env.skip_bad_hosts = <span class="keyword">True</span></div><div class="line">output[<span class="string">'running'</span>] = <span class="keyword">False</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_srv_list</span><span class="params">(**kwargs)</span>:</span></div><div class="line">    where = <span class="string">''</span></div><div class="line">    <span class="keyword">for</span> arg <span class="keyword">in</span> kwargs:</div><div class="line">        <span class="keyword">if</span> isinstance(kwargs[arg], int) <span class="keyword">or</span> isinstance(kwargs[arg], float):</div><div class="line">            where += <span class="string">'&#123;&#125; = &#123;&#125; AND '</span>.format(arg, kwargs[arg])</div><div class="line">        <span class="keyword">elif</span> isinstance(kwargs[arg], str):</div><div class="line">            where += <span class="string">'&#123;&#125; = "&#123;&#125;" AND '</span>.format(arg, kwargs[arg])</div><div class="line">    where = where[:<span class="number">-5</span>]</div><div class="line">    <span class="keyword">if</span> <span class="keyword">not</span> where:</div><div class="line">        <span class="keyword">raise</span>(ValueError(<span class="string">'Query params not set!'</span>))</div><div class="line">    <span class="comment"># srv_list = DBClient.select_rows(where)</span></div><div class="line">    <span class="keyword">return</span> srv_list</div><div class="line"></div><div class="line"></div><div class="line">env.roledefs = &#123;</div><div class="line">    role1: [<span class="string">'srv1'</span>, <span class="string">'srv2'</span>, <span class="string">'srv3'</span>],</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line"><span class="meta">@task</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">runcmd</span><span class="params">(cmd)</span>:</span></div><div class="line">    run(cmd)</div><div class="line"></div><div class="line"></div><div class="line"><span class="meta">@task</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">runscript</span><span class="params">(script_path)</span>:</span></div><div class="line">    <span class="keyword">with</span> settings(warn_only=<span class="keyword">False</span>):</div><div class="line">        res = put(script_path, remote_path=<span class="string">'/root'</span>)</div><div class="line">    <span class="keyword">for</span> script <span class="keyword">in</span> res:</div><div class="line">        run(<span class="string">'chmod u+x &#123;&#125;'</span>.format(script))</div><div class="line">        run(script)</div><div class="line">        run(<span class="string">'rm &#123;&#125;'</span>.format(script))</div><div class="line"></div><div class="line"></div><div class="line"><span class="meta">@task</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">putfile</span><span class="params">(file_path, remote_path)</span>:</span></div><div class="line">    put(file_path, remote_path=remote_path)</div><div class="line"></div><div class="line"></div><div class="line"><span class="meta">@task</span></div><div class="line"><span class="meta">@hosts('localhost')</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">srvlist</span><span class="params">()</span>:</span></div><div class="line">    output[<span class="string">'status'</span>] = <span class="keyword">False</span></div><div class="line">    <span class="keyword">for</span> role <span class="keyword">in</span> env.roles:</div><div class="line">        <span class="keyword">for</span> srv <span class="keyword">in</span> env.roledefs[role]:</div><div class="line">            print(srv)</div></pre></td></tr></table></figure>
+<p>Пользуюсь им при помощи алиаса командной строки. Добавил в <code>~/.bashrc</code>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">alias rex=&apos;fab -f /home/g.aleksandrov/rexec.py&apos;</div></pre></td></tr></table></figure>
+<h2 id="Mission-Control-в-Unity"><a href="#Mission-Control-в-Unity" class="headerlink" title="Mission Control в Unity"></a>Mission Control в Unity</h2><p>В macOS часто пользуюсь Mission Control ради просмотра всех открытых окон. Такую штуку можно сделать и в Unity.<br>Для вывода всех окон по наведению курсора в угол экрана в <code>ccsm</code> надо выставить настройку “Scaling” &gt; “initiate_all_edge” (как-то так).</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/environment/">environment</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/07/03/web-operations-sla/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Из книги &quot;Web Operations&quot; - Составление SLA
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/06/30/fio/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Как правильно мерять производительность диска&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Gennady Aleksandrov&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/ppoffice">PPOffice</a>
+    </div>
+  </div>
+</footer>
+    
+
+<script src="/js/jquery.min.js"></script>
+
+
+
+<script src="/js/script.js"></script>
+  </div>
+</body>
+</html>

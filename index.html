@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Gevial&#39;s Tech Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Gevial's Tech Blog">
+<meta property="og:url" content="https://gevial.github.io/index.html">
+<meta property="og:site_name" content="Gevial's Tech Blog">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Gevial's Tech Blog">
+  
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/tags">Tags</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://gevial.github.io"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <section id="main" class="outer">
+      <article id="post-python-lockfile" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/12/11/python-lockfile/">Локфайлы в Python</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/12/11/python-lockfile/" class="article-date">
+  <time datetime="2016-12-11T12:07:33.000Z" itemprop="datePublished">2016-12-11</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Появилась необходимость исключить параллельный запуск скрипта на Python. Вспомнил про пакет <code>lockfile</code>, однако выяснилось, что он находится в статусе deprecated.</p>
+<p>На странице проекта есть рекомендация использовать пакет <a href="https://pypi.python.org/pypi/fasteners" target="_blank" rel="external">fasteners</a>. Он более сложный, направлен на синхронизацию между потоками или процессами. Однократный запуск с его помощью реализовать легко. При запуск пытаемся лочить файл. Не удалось - выходим.</p>
+<p>Пример:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">lock = fasteners.process_lock.InterProcessLock(LOCKFILE)</div><div class="line"><span class="keyword">if</span> <span class="keyword">not</span> lock.acquire(blocking=<span class="keyword">False</span>):</div><div class="line">    hist_logger.error(</div><div class="line">        <span class="string">'Unable to acquire lock on &#123;&#125;. Maybe another instance is running.'</span></div><div class="line">        .format(LOCKFILE)</div><div class="line">    )</div><div class="line">    sys.exit(os.EX_TEMPFAIL)</div></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ipc/">ipc</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/programming/">programming</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-hexo" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/12/10/hexo/">Hexo</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/12/10/hexo/" class="article-date">
+  <time datetime="2016-12-10T13:20:02.000Z" itemprop="datePublished">2016-12-10</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Я перевёл свой блог на движок Hexo (раньше использовал Jekyll). Hexo - самый простой и удобный движок для статического блога на сегодня.</p>
+<h3 id="Установка-Hexo"><a href="#Установка-Hexo" class="headerlink" title="Установка Hexo"></a>Установка Hexo</h3><p>Нужно установить node.js и сам hexo. Инструкция есть в официальной документации. Правда, есть одна особенность. Если написание постов будет происходить с разных платформ, то модуль node-sass нужно установить для каждой из них. Это делается командой <code>npm rebuild node-sass</code>. Иначе при отдаче контента будут ошибки “No layout”.</p>
+<h3 id="Подготовка-репозитория"><a href="#Подготовка-репозитория" class="headerlink" title="Подготовка репозитория"></a>Подготовка репозитория</h3><p>Мой блог хостится на Github Pages. Для User-блогов отдача контента происходит только из ветки  <code>master</code>. Там будет лежать сгенерированный статический блог. Поэтому исходники нужно хранить в отдельной ветке, например, <code>source</code>. Так что, склонировав свежесозданный репозиторий, переключаемся сразу на ветку <code>source</code>. Создаём там <code>.gitignore</code> со следующим содержимым:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">db.json</div><div class="line">.deploy_git</div><div class="line">public</div></pre></td></tr></table></figure></p>
+<h3 id="Установка-темы"><a href="#Установка-темы" class="headerlink" title="Установка темы"></a>Установка темы</h3><p>Ставить темы в Hexo очень просто и удобно. Находим понравившуюся тему в разделе <a href="https://hexo.io/themes/" target="_blank" rel="external">темы</a> официального сайта. Далее добавляем её в репозиторий блога как модуль:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git submodule add &#123;theme-github-url&#125; themes/&#123;theme-name&#125;</div></pre></td></tr></table></figure></p>
+<p>И указываем в конфиге блога  <code>_config.yml</code> имя новой темы.</p>
+<h3 id="Деплой"><a href="#Деплой" class="headerlink" title="Деплой"></a>Деплой</h3><p>Настраиваем деплой в ветку <code>master</code> в соответствии с <a href="https://hexo.io/docs/deployment.html#Git" target="_blank" rel="external">инструкцией</a> официального сайта.</p>
+<h3 id="Написание-поста"><a href="#Написание-поста" class="headerlink" title="Написание поста"></a>Написание поста</h3><ol>
+<li>Заходим в директорию блога</li>
+<li>Создаём пост: <code>hexo new post &lt;title&gt;</code></li>
+<li>Открываем созданный md-файл в любимом редакторе и пишем пост.</li>
+<li>Сохраняем, пушим в ветку <code>source</code> репозитория с блогом.</li>
+<li>Генерируем блог из исходников и запускаем деплой: <code>hexo generate --deploy</code></li>
+</ol>
+<p>Для первоначальной настройки пользовался <a href="https://zirho.github.io/2016/06/04/hexo/" target="_blank" rel="external">вот этой</a> инструкцией, кратким переводом которой и является этот пост.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hexo/">hexo</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-openapi" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  <h1 itemprop="name">
+    <a class="article-title" href="https://www.openapis.org/" target="_blank" itemprop="url">Открытая спецификация Open API Specification</a>
+  </h1>
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/11/13/openapi/" class="article-date">
+  <time datetime="2016-11-13T09:00:00.000Z" itemprop="datePublished">2016-11-13</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Смотрел трансляцию конференции Highload++. Один из докладчиков был из Zalando - один из крупнейших в Европе онлайн-продавцов одежды и обуви (представьте себе нашу Lamoda, только в 50 раз крупнее). Он сказал, что у них микросервисная архитектура, и каджый сервис должен соответствовать OpenAPI (бывшая Swagger API Specification). Сохраняю ссылку себе, т.к. использование OAI - best practice в проектировании API.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/api/">api</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/development/">development</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-web-operations-data-assets" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/10/28/web-operations-data-assets/">Из книги &quot;Web Operations&quot; - Data Assets</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/10/28/web-operations-data-assets/" class="article-date">
+  <time datetime="2016-10-28T09:00:00.000Z" itemprop="datePublished">2016-10-28</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Продолжаю постить выдержки из книги “Web Operations: Keeping the Data on Time”.</p>
+<p>На этот раз речь пойдёт об одной полезной практике. Она заключается в составлении таблицы, каждая строка в которой - какой-то ресурс данных вашей компании, будь то база данных, пользовательские данные, репозитории с кодом. Штука в том, что в эту таблицы обязательно должны быть записаны и бэкапы. Лучше всего проиллюстрировать эту технику готовой таблицей из книги.</p>
+<p>Таблица 14-5 из книги.<br>RTO - recovery-time objective, RPO - recovery-point objective.</p>
+<blockquote>
+<p>RTOs define the maximum length of time it should take to recover from any sort of disruption of service. Let’s say your expensive NAS appliance goes down, and part of your site depends on it. You’ll need to know how long the system can reasonably be unavailable before it has a serious negative impact on your product or users. It’s important that you talk with your product people to figure out how long the system can be down (and data inaccessible) before the business side of things starts to unravel. This is something you’ll want to know and agree upon before something bad happens.</p>
+<p>RPOs describe the maximum amount of data loss that is acceptable after a disruption of service. The amount of data loss is usually measured in time. Let’s say the crops database I described earlier is backed up nightly at 10:00. If the storage system melts down and loses all its data at 9:00 p.m., the only backup you have is from 10:00 the night before, and you will have lost about a day’s worth of data if you restore from that backup. This means the maximum RPO for this system is about 24 hours, the time elapsed between nightly backups.</p>
+</blockquote>
+<p>|Location|System|System Type|Data type|RTO|RPO|Business impact|Data protection|<br>|San Diego|database1.sd|Storage system|Database|10 minutes|15 minutes|Users can’t harvest crops or plant new crops|Nightly backups; local replication;  application-consistent snapshots every hour; continuously back up transaction logs from master to VTL|<br>|San Diego|database2.sd|Storage system|Database|4 hours|2 hours|No local replica for primary crops database|Remote replica|<br>|New York|database3.ny|Storage system|Database|4 hours|2 hours|No remote replica for primary crops database|None|<br>|San Diego|vtl1.sd|VTL|Database backups and transaction logs|12 hours|24 hours|Can’t back up or recover the crops database or transaction logs|None|</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/book/">book</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-web-operations-postmortem" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/09/27/web-operations-postmortem/">Из книги &quot;Web Operations&quot; - Postmortem (RCA)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/09/27/web-operations-postmortem/" class="article-date">
+  <time datetime="2016-09-27T09:00:00.000Z" itemprop="datePublished">2016-09-27</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Продолжаю постить выдержки из книги “Web Operations: Keeping the Data on Time”.</p>
+<p>В этом посте речь пойдёт о проведении Postmortem, или Root-Cause Analysis (RCA). По сути, это - анализ произошедшей аварии. В книге действительно хорошо всё описано, поэтому выдержки приведу as is.</p>
+<h3 id="What-Is-a-Postmortem"><a href="#What-Is-a-Postmortem" class="headerlink" title="What Is a Postmortem?"></a>What Is a Postmortem?</h3><p>A postmortem needs to cover these essentials at a minimum:</p>
+<ol>
+<li>A description of the incident</li>
+<li>A description of the root cause</li>
+<li>How the incident was stabilized and/or fixed</li>
+<li>A timeline of actions taken to resolve the incident</li>
+<li>How the incident affected customers</li>
+<li>Remediations or corrective actions</li>
+</ol>
+<p>The first five items make sure everyone involved has a common understanding of the facts. Many incidents reoccur because people do not understand what really happened and how the problem was fixed. Different teams and different layers of management arrive at the postmortem with different understandings of what happened. During a postmortem, everyone with significant involvement in the incident should be present at the same time to document a common description of the facts of the incident. Without an accurate account of the facts, it will be impossible to determine and prioritize the corrective actions that are the biggest benefit of a postmortem.</p>
+<p>Determining the root cause should go without saying, but I can’t tell you the number of times I have been in a postmortem where participants spent tons of time debating each possible remediation item or the number of customers affected, only to find that they had wasted their time because they didn’t have the root cause right.</p>
+<p>The same goes for the stabilizing steps. Often during the chaos of a major incident, multiple people attempt multiple fixes. Determine the true root cause and the step that brought it to stable before moving on. Note that an incident might be stable without actually being fixed. You can eliminate customer impact without fixing an issue like when you reboot servers to address a memory leak. Although it will be stable for a short period, the servers are just going to run out of memory again if the root cause is not addressed.</p>
+<p>A timeline will be important for determining how the incident could have been fixed more quickly. Again, multiple people may have a different understanding of the time- line. Allow each participant to contribute the items they are aware of before moving to remediation items around decreasing Time to Resolve (TTR). Make sure to answer the following questions:</p>
+<ul>
+<li>When did the incident begin to affect customers? (Note: Not all incidents affect customers.)</li>
+<li>When did someone in the organization first become aware that there was a problem?</li>
+<li>How did this person become aware? Through monitoring? The Customer Care team? A personal report?</li>
+<li>How long did it take for the knowledge of the incident to get to the person who ultimately resolved it?</li>
+<li>What would have allowed someone to diagnose the fault earlier? (For example, better monitoring, more comprehensive troubleshooting guides, etc.)</li>
+<li>Did the stabilizing steps take a long time to implement? Could they be automated or simplified to speed them up?</li>
+</ul>
+<p>Reducing the TTR of an incident is every bit as important as eliminating incidents themselves. Ultimately, total customer impact minutes (TTR × Number of Customers Affected) is what counts. Some outages may be unavoidable, but if you can ensure quick recovery, your customers will benefit.</p>
+<p>After determining the customer impact, you may want to assign a severity level to the incident. You can develop your own severity categories, or use this example:</p>
+<p>Severity 1: site outages affecting a significant number of customers</p>
+<p>Severity 2: site degradation, performance issues, or broken features which are difficult to work around</p>
+<p>Severity 3: other service issues that have minimal customer impact or easy workarounds</p>
+<p>Assigning a severity level will help you to prioritize completion of your remediation items and is also useful during the triage stage of an active incident. You may have already assigned a severity level while attempting to resolve the issue so that you could determine whether it is a five-alarm fire requiring all hands on deck or a minor blip.</p>
+<h3 id="When-to-Conduct-a-Postmortem"><a href="#When-to-Conduct-a-Postmortem" class="headerlink" title="When to Conduct a Postmortem."></a>When to Conduct a Postmortem.</h3><p>You should conduct a postmortem after every major outage that affects customers, preferably within 24 hours. This is a little more difficult than it sounds. Teams are usually busy. They are especially busy right after an incident occurs, because they probably spent unplanned cycles on firefighting. Some of the firefighters may have been up all night resolving the incident. Once an incident is stable, people have a tendency to get back to whatever they were doing before they were interrupted to try to make up for lost time.</p>
+<p>The important thing to note is that until a postmortem is conducted and corrective actions are identified, your site is at risk of repeating the incident. If you can’t conduct the postmortem within 24 hours, don’t wait any longer than a week. After a week, incident participants will start to forget key details; you may be missing key logfiles; and of course, you remain at risk for reoccurrence.</p>
+<p>Although it’s good to complete a postmortem within 24 hours, you should not conduct a postmortem while the incident is still open. Trying to determine preventive actions or assign blame is a distraction that teams don’t need while they are attempting to stabi- lize the service. Remember, this process is ultimately intended to benefit your customers, and the process should never directly get in the way of restoring service to them.</p>
+<h3 id="Postmortem-Follow-Up"><a href="#Postmortem-Follow-Up" class="headerlink" title="Postmortem Follow-Up"></a>Postmortem Follow-Up</h3><p>…</p>
+<p>After many years of postmortems, I’ve found a few areas that you will likely want to consider for corrective actions. I call this <em>site operability</em>.</p>
+<p><em>Eliminate single points of failure</em></p>
+<p>Hardware can and will fail. Utilize redundancy to protect yourself. Don’t let hardware failure be a cause of a customer-impacting incident.</p>
+<p><em>Capacity planning</em></p>
+<p>Understand your site and its future capacity needs. Base your capacity planning on total utilization of primary constraints such as CPU, memory, I/O, and storage, not on secondary constraints such as number of users. Provision in the areas you need, before you need them.</p>
+<p><em>Monitoring</em></p>
+<p>This is essential for detecting and diagnosing incidents. Other chapters in this book provide great recommendations for monitoring techniques.</p>
+<p><em>Release management</em></p>
+<p>Change is historically the most likely cause of incidents. Make sure your release process has the right quality controls in place. Consider implementing concepts such as automated testing, staging environments, limited production deployments, dark launches (rolling out code without activating functionality for customers until the code is proven stable), and the ability to roll back immediately.</p>
+<p><em>Operational architecture reviews</em></p>
+<p>Hold an architecture review that is entirely focused on how the new release or product will perform in the production environment before rolling it out to customers. Consider maintainability, failure scenarios, and incident response as well as architectural reliability and scalability.</p>
+<p><em>Configuration management</em></p>
+<p>As your systems grow, production configurations become increasingly ­complicated. The inability to understand the implications of changes to production configurations often leads to incidents attributed to human error. Having a configuration management system that is straightforward and logical will help engineers avoid unintended issues. Read Chapter 5 in this book for more recommendations.</p>
+<p><em>On-call and escalation process</em></p>
+<p>Identify the issue and get it to the person who can resolve it as quickly as possible.</p>
+<p><em>Unstable components</em></p>
+<p>Identify and fix software components with a history of crashing and unintended behavior. Make it a priority even when there is an easy manual fix. Those manual fixes add up to become a drag on customer experience and your ability to scale and be effective.</p>
+<p>By proactively ensuring that your site is operable, you will be able to avoid many painful postmortems before they are even necessary.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/book/">book</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-web-operations-sla" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/07/03/web-operations-sla/">Из книги &quot;Web Operations&quot; - Составление SLA</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/07/03/web-operations-sla/" class="article-date">
+  <time datetime="2016-07-03T09:00:00.000Z" itemprop="datePublished">2016-07-03</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Прочёл превосходную книгу - “Web Operations: Keeping the Data on Time”. Авторы: John Allspaw, Jesse Robbins. ISBN-13: 978-1449377441.</p>
+<p>Несмотря на то, что книга вышла в 2010-ом, информация в ней остаётся актуальной для многих компаний.</p>
+<p>Также в книге изложены организационные принципы, которые вряд ли устареют в ближайшем будущем.</p>
+<p>Хочу особо выделить некоторые моменты из книги, раскидаю по отдельным постам.</p>
+<h3 id="Составление-SLA"><a href="#Составление-SLA" class="headerlink" title="Составление SLA"></a>Составление SLA</h3><p>SLA (Service Level Agreement) - формальный договор между заказчиком услуги и её поставщиком, содержащий описание услуги, права и обязанности сторон, а также согласованный уровень качества предоставления данной услуги.</p>
+<blockquote>
+<p>User-facing SLAs have several components (see Table 11-2). You need to be specific about these so that there’s no doubt whether an SLA was violated when someone claims that a problem occurred.</p>
+</blockquote>
+<p>Привожу таблицу 11-2.</p>
+<table>
+<thead>
+<tr>
+<th>SLA component</th>
+<th>What it means</th>
+<th>How it’s expressed</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Task being measured</td>
+<td>The thing being tested — the business process or function itself</td>
+<td>This is usually expressed as a name or description of the test; avoid using just the url or page name as it makes the test harder to read.</td>
+<td>“Updating  a contact  record”</td>
+</tr>
+<tr>
+<td>Metric being  calculated</td>
+<td>The element of latency that’s being computed. If you can’t control it, it shouldn’t be in your SLA.</td>
+<td>This is a measurement  that is specific and can be reproduced across systems. You should know, for example, that “page load time” means “from the first DNS lookup to the browser’s <code>onLoad</code> event.”</td>
+<td>“Host latency”</td>
+</tr>
+<tr>
+<td>Calculation</td>
+<td>The math used to generate the number</td>
+<td>Unfortunately, this is usually an average. Don’t do this. Averages suck. Insist on a percentile (or  at the very least a trimmed  mean), and a single bad measurement won’t ruin an otherwise good month.</td>
+<td>“95th percentile”</td>
+</tr>
+<tr>
+<td>Valid times</td>
+<td>The times and days when the metric is valid. If you don’t include this, you won’t have room for maintenance. Some business processes matter at only certain times.</td>
+<td>This is expressed as hours, days, and time zones.</td>
+<td>“8:00 a.m. to 9:00  p.m., pST, Monday to Friday”</td>
+</tr>
+<tr>
+<td>Test conditions (or filters)</td>
+<td>The circumstances of the test or the visits included in the report: - For synthetic monitoring, this may be an agreed- upon external service provider. - For RUM, it may be all visits from a particular client, location, IP range, or some other segment.</td>
+<td>This is expressed as operating systems, network locations, browsers, user accounts, source IP ranges, and so on.</td>
+<td>“Domestic United States on a PC running IE7”</td>
+</tr>
+<tr>
+<td>Time span</td>
+<td>The time over which the calculation is performed</td>
+<td>This is expressed as a time range, often a day, week, or month.</td>
+<td>“In a 30-day period”</td>
+</tr>
+</tbody>
+</table>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/book/">book</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-work-env" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/07/01/work-env/">Настройка рабочего окружения</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/07/01/work-env/" class="article-date">
+  <time datetime="2016-07-01T09:00:00.000Z" itemprop="datePublished">2016-07-01</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Вот как я настраиваю рабочее окружение.</p>
+<h2 id="Клавиша-“-”"><a href="#Клавиша-“-”" class="headerlink" title="Клавиша “#”"></a>Клавиша “#”</h2><p>Мне не нужен символ номера (shift+3 на русской раскладке). Но я часто пользуюсь символом #. Это нумерованный список в Redmine плюс ссылки на задачи начинаются также с #. В Ubuntu 16.04 исправить недоразумение и сделать так, чтобы в русской раскладке также печатался символ #, можно, отредактировав файл <code>/usr/share/X11/xkb/symbols/ru</code>. Достаточно закомментировать строку 13 (это секция, где переопределяются значения сочетаний shift+цифра). Вот эту строку, если быть точным:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">// Keyboard layouts for Russia.</div><div class="line">// AEN &lt;aen@logic.ru&gt;</div><div class="line">// 2001/12/23 by Leon Kanter &lt;leon@blackcatlinux.com&gt;</div><div class="line">// 2005/12/09 Valery Inozemtsev &lt;shrek@altlinux.ru&gt;</div><div class="line"></div><div class="line">// Windows layout</div><div class="line">default  partial alphanumeric_keys</div><div class="line">xkb_symbols &quot;winkeys&quot; &#123;</div><div class="line"></div><div class="line">    include &quot;ru(common)&quot;</div><div class="line">    name[Group1]= &quot;Russian&quot;;</div><div class="line"></div><div class="line">//    key &lt;AE03&gt; &#123; [           3,  numerosign  ] &#125;;</div><div class="line">    key &lt;AE04&gt; &#123; [           4,   semicolon  ] &#125;;</div><div class="line">    key &lt;AE05&gt; &#123; [           5,     percent  ] &#125;;</div></pre></td></tr></table></figure>
+<h2 id="Редактор"><a href="#Редактор" class="headerlink" title="Редактор"></a>Редактор</h2><p>Лучший редактор для меня - Atom. Список модулей, которые я использую:</p>
+<ul>
+<li>autocomplete-python</li>
+<li>build</li>
+<li>busy</li>
+<li>file-icons</li>
+<li>git-plus</li>
+<li>hyperclick <em>(В сочетании с autocomplete-python даёт возможность Ctrl-кликнуть на символ в коде, чтобы перейти к его определению)</em></li>
+<li>language-puppet</li>
+<li>linter</li>
+<li>linter-flake8</li>
+<li>linter-puppet-lint</li>
+<li>linter-rubocop</li>
+<li>minimap</li>
+</ul>
+<h2 id="Build"><a href="#Build" class="headerlink" title="Build"></a>Build</h2><p>Удобно писать код в Atom и тестировать его запуском на удалённом сервере через SSH. Для этого я написал build-сценарий для соответствующего модуля:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">  &quot;name&quot;: &quot;Runscript&quot;,</div><div class="line">  &quot;cmd&quot;: &quot;echo &apos;Choose target&apos;&quot;,</div><div class="line">  &quot;sh&quot;: true,</div><div class="line">  &quot;targets&quot;: &#123;</div><div class="line">    &quot;host_accessed_with_fabric&quot;: &#123; &quot;cmd&quot;: &quot;fab -f /home/gena/rexec.py -H srvname runscript:\&quot;&#123;FILE_ACTIVE&#125;\&quot;&quot; &#125;,</div><div class="line">    &quot;host_accessed_with_plain_ssh&quot;: &#123; &quot;cmd&quot;: &quot;scp &#123;FILE_ACTIVE&#125; srvname:~/atom-build.script; ssh srvname ~g.aleksandrov/atom-build.script; ssh srvname rm ~g.aleksandrov/atom-build.script&quot; &#125;,</div><div class="line">    &quot;local_python&quot;: &#123; &quot;cmd&quot;: &quot;python &#123;FILE_ACTIVE&#125;&quot; &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="ssh-config"><a href="#ssh-config" class="headerlink" title=".ssh/config"></a>.ssh/config</h2><p>Мы используем SSH-шлюз, доступ на сервера осуществляется через него. Для тестирования скриптов это не очень удобно, иногда нужен прямой доступ. Его можно получить, настроив SSH-клиент, вот конфиг:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">Host gateway</div><div class="line">    Hostname gateway.example.com</div><div class="line">    User g.aleksandrov</div><div class="line">    IdentityFile ~/.ssh/g.aleksandrov-tw_key</div><div class="line"></div><div class="line">Host directaccess</div><div class="line">    Hostname directaccess.example.com</div><div class="line">    User root</div><div class="line">    IdentityFile ~/.ssh/g.aleksandrov-tw_key</div><div class="line"></div><div class="line">Host gitlab.example.com</div><div class="line">    User git</div><div class="line">    IdentityFile ~/.ssh/g.aleksandrov-tw_key</div><div class="line"></div><div class="line">Host github.com</div><div class="line">    User git</div><div class="line">    IdentityFile ~/Dropbox/keys/github_main_key</div><div class="line"></div><div class="line">Host !gateway* !directaccess* !gitlab.example.com !github.com !*.* *</div><div class="line">    User root</div><div class="line">    ProxyCommand ssh gateway -W %h:22</div><div class="line">    IdentityFile ~/.ssh/id_rsa.admins</div><div class="line">    StrictHostKeyChecking no</div></pre></td></tr></table></figure>
+<p>При таком конфиге доступ на любой сервер будет осуществляться через gateway. За исключением, кхм, исключений.</p>
+<h2 id="Fabric"><a href="#Fabric" class="headerlink" title="Fabric"></a>Fabric</h2><p>Для выполнения команд/скриптов на удалённых серверах я написал fabfile. Вот его шаблон:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div></pre></td><td class="code"><pre><div class="line"><span class="comment">#!/usr/bin/python</span></div><div class="line"></div><div class="line"><span class="keyword">from</span> fabric.api <span class="keyword">import</span> run, task, env, put, settings, hosts</div><div class="line"><span class="keyword">from</span> fabric.state <span class="keyword">import</span> output</div><div class="line"></div><div class="line"></div><div class="line">env.use_ssh_config = <span class="keyword">True</span></div><div class="line">env.colorize_errors = <span class="keyword">True</span></div><div class="line">env.warn_only = <span class="keyword">True</span></div><div class="line">env.skip_bad_hosts = <span class="keyword">True</span></div><div class="line">output[<span class="string">'running'</span>] = <span class="keyword">False</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_srv_list</span><span class="params">(**kwargs)</span>:</span></div><div class="line">    where = <span class="string">''</span></div><div class="line">    <span class="keyword">for</span> arg <span class="keyword">in</span> kwargs:</div><div class="line">        <span class="keyword">if</span> isinstance(kwargs[arg], int) <span class="keyword">or</span> isinstance(kwargs[arg], float):</div><div class="line">            where += <span class="string">'&#123;&#125; = &#123;&#125; AND '</span>.format(arg, kwargs[arg])</div><div class="line">        <span class="keyword">elif</span> isinstance(kwargs[arg], str):</div><div class="line">            where += <span class="string">'&#123;&#125; = "&#123;&#125;" AND '</span>.format(arg, kwargs[arg])</div><div class="line">    where = where[:<span class="number">-5</span>]</div><div class="line">    <span class="keyword">if</span> <span class="keyword">not</span> where:</div><div class="line">        <span class="keyword">raise</span>(ValueError(<span class="string">'Query params not set!'</span>))</div><div class="line">    <span class="comment"># srv_list = DBClient.select_rows(where)</span></div><div class="line">    <span class="keyword">return</span> srv_list</div><div class="line"></div><div class="line"></div><div class="line">env.roledefs = &#123;</div><div class="line">    role1: [<span class="string">'srv1'</span>, <span class="string">'srv2'</span>, <span class="string">'srv3'</span>],</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line"><span class="meta">@task</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">runcmd</span><span class="params">(cmd)</span>:</span></div><div class="line">    run(cmd)</div><div class="line"></div><div class="line"></div><div class="line"><span class="meta">@task</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">runscript</span><span class="params">(script_path)</span>:</span></div><div class="line">    <span class="keyword">with</span> settings(warn_only=<span class="keyword">False</span>):</div><div class="line">        res = put(script_path, remote_path=<span class="string">'/root'</span>)</div><div class="line">    <span class="keyword">for</span> script <span class="keyword">in</span> res:</div><div class="line">        run(<span class="string">'chmod u+x &#123;&#125;'</span>.format(script))</div><div class="line">        run(script)</div><div class="line">        run(<span class="string">'rm &#123;&#125;'</span>.format(script))</div><div class="line"></div><div class="line"></div><div class="line"><span class="meta">@task</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">putfile</span><span class="params">(file_path, remote_path)</span>:</span></div><div class="line">    put(file_path, remote_path=remote_path)</div><div class="line"></div><div class="line"></div><div class="line"><span class="meta">@task</span></div><div class="line"><span class="meta">@hosts('localhost')</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">srvlist</span><span class="params">()</span>:</span></div><div class="line">    output[<span class="string">'status'</span>] = <span class="keyword">False</span></div><div class="line">    <span class="keyword">for</span> role <span class="keyword">in</span> env.roles:</div><div class="line">        <span class="keyword">for</span> srv <span class="keyword">in</span> env.roledefs[role]:</div><div class="line">            print(srv)</div></pre></td></tr></table></figure>
+<p>Пользуюсь им при помощи алиаса командной строки. Добавил в <code>~/.bashrc</code>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">alias rex=&apos;fab -f /home/g.aleksandrov/rexec.py&apos;</div></pre></td></tr></table></figure>
+<h2 id="Mission-Control-в-Unity"><a href="#Mission-Control-в-Unity" class="headerlink" title="Mission Control в Unity"></a>Mission Control в Unity</h2><p>В macOS часто пользуюсь Mission Control ради просмотра всех открытых окон. Такую штуку можно сделать и в Unity.<br>Для вывода всех окон по наведению курсора в угол экрана в <code>ccsm</code> надо выставить настройку “Scaling” &gt; “initiate_all_edge” (как-то так).</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/environment/">environment</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-fio" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  <h1 itemprop="name">
+    <a class="article-title" href="https://habrahabr.ru/post/154235/" target="_blank" itemprop="url">Как правильно мерять производительность диска</a>
+  </h1>
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/06/30/fio/" class="article-date">
+  <time datetime="2016-06-30T09:00:00.000Z" itemprop="datePublished">2016-06-30</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Методология измерения параметров хранилищ. Must read.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/performance/">performance</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/storage/">storage</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-change-ext-journal-device-ext4" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/02/10/change-ext-journal-device-ext4/">Смена устройства, хранящего внешний журнал ext4</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/02/10/change-ext-journal-device-ext4/" class="article-date">
+  <time datetime="2016-02-10T09:00:00.000Z" itemprop="datePublished">2016-02-10</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Недавно столкнулся со следующей ситуацией.</p>
+<p>Есть файловая система ext4 на 22 Тб. Настроили для неё размещение журнала на отдельной SSD, указали опцию монтирования <code>journal_async_commit</code>.<br>Спустя сутки ФС внезапно стала read-only. Оказалось, диск, на котором размещался журнал, был извлечён из системы с помощью <code>MegaCli</code>.<br>Отмонтировать ФС не удавалось, umount “висел”. Были вынуждены перезагрузить сервер через reset.</p>
+<p>После загрузки сменились major и minor номера всех блочных устройств, они стали такими:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"># cat /proc/partitions</div><div class="line">major minor  #blocks  name</div><div class="line"></div><div class="line">   8       16  233897984 sdb</div><div class="line">   8       17  233896960 sdb1</div><div class="line">   8       32  175276032 sdc</div><div class="line">   8        0 23437770752 sda</div><div class="line">   8        1 23437768704 sda1</div><div class="line">   8       48   97685784 sdd</div><div class="line">   8       49   97684480 sdd1</div><div class="line">#</div></pre></td></tr></table></figure>
+<p>ФС не монтировалась, несмотря на то, что при подключении внешнего журнала был указан UUID. Примонтировали ФС только со сменой устройства журнала:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mount -t ext4 -o journal_dev=$(stat -c &quot;0x%t%T&quot; /dev/sdc) /dev/sda1 /var/spool/maildir</div></pre></td></tr></table></figure>
+<p>Трудность была в том, что в мануале <code>mount</code> не указано, в каком формате необходимо передавать аргумент опции <code>journal_dev</code>. Информацию я нашёл лишь где-то в списках рассылки.</p>
+<p>Стоит отметить, что в современных версиях <code>mount</code> есть опция <code>journal_path</code>, которая позволяет указать просто путь к устройству. Но в Ubuntu 12.04 этой опции в <code>mount</code> нет.</p>
+<p>После успешного монтирования мы опять выполнили <code>umount</code>, чтобы “прогнать” <code>e2fsck</code>. После ФС успешно примонтировалась просто по <code>mount -a</code>.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/storage/">storage</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-time_wait-sockets" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  <h1 itemprop="name">
+    <a class="article-title" href="http://vincent.bernat.im/en/blog/2014-tcp-time-wait-state-linux.html" target="_blank" itemprop="url">Всё о сокетах в состоянии TIME_WAIT</a>
+  </h1>
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/01/21/time_wait-sockets/" class="article-date">
+  <time datetime="2016-01-21T09:00:00.000Z" itemprop="datePublished">2016-01-21</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Превосходная статья о сокетах, находящихся в состоянии <code>TIME_WAIT</code>.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/network/">network</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <nav id="page-nav">
+        <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/">Далее &raquo;</a>
+      </nav>
+    </section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Gennady Aleksandrov&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/ppoffice">PPOffice</a>
+    </div>
+  </div>
+</footer>
+    
+
+<script src="/js/jquery.min.js"></script>
+
+
+
+<script src="/js/script.js"></script>
+  </div>
+</body>
+</html>

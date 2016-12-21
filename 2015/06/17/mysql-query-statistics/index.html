@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Статистика времени выполнения запросов в MySQL - Gevial&#39;s Tech Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="В MySQL существует возможность логирования “медленных” запросов.
+В такой лог будут записаны все запросы, выполнение которых заняло более long_query_time секунд. Безусловно, анализ slow_log’а может пом">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Статистика времени выполнения запросов в MySQL">
+<meta property="og:url" content="https://gevial.github.io/2015/06/17/mysql-query-statistics/index.html">
+<meta property="og:site_name" content="Gevial's Tech Blog">
+<meta property="og:description" content="В MySQL существует возможность логирования “медленных” запросов.
+В такой лог будут записаны все запросы, выполнение которых заняло более long_query_time секунд. Безусловно, анализ slow_log’а может пом">
+<meta property="og:updated_time" content="2016-12-21T15:37:50.164Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Статистика времени выполнения запросов в MySQL">
+<meta name="twitter:description" content="В MySQL существует возможность логирования “медленных” запросов.
+В такой лог будут записаны все запросы, выполнение которых заняло более long_query_time секунд. Безусловно, анализ slow_log’а может пом">
+  
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/tags">Tags</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://gevial.github.io"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <section id="main" class="outer"><article id="post-mysql-query-statistics" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Статистика времени выполнения запросов в MySQL
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/06/17/mysql-query-statistics/" class="article-date">
+  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>В MySQL существует возможность логирования “медленных” запросов.</p>
+<p>В такой лог будут записаны все запросы, выполнение которых заняло более <code>long_query_time</code> секунд. Безусловно, анализ slow_log’а может помочь найти узкое место. Но, несмотря на то, что <code>long_query_time</code> можно указывать с точностью до микросекунд, бывает необходимо проанализировать общую статистику времени исполнения запросов.</p>
+<p>Командой Percona реализована такая возможность. Посмотреть распределение можно с помощью запросов.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">mysql&gt; SHOW QUERY_RESPONSE_TIME;</div><div class="line">time                   count   total</div><div class="line">0.000001               0       0.000000</div><div class="line">0.000010               0       0.000000</div><div class="line">0.000100               1       0.000072</div><div class="line">0.001000               0       0.000000</div><div class="line">0.010000               0       0.000000</div><div class="line">0.100000               0       0.000000</div><div class="line">1.000000               0       0.000000</div><div class="line">10.000000              8       47.268416</div><div class="line">100.000000             0       0.000000</div><div class="line">1000.000000            0       0.000000</div><div class="line">10000.000000           0       0.000000</div><div class="line">100000.000000          0       0.000000</div><div class="line">1000000.000000         0       0.000000</div><div class="line">TOO LONG QUERY         0       0.000000</div></pre></td></tr></table></figure>
+<p>Эти данные хранятся в таблице <em>INFORMATION_SCHEMA.QUERY_RESPONSE_TIME</em>. Например, приведённый вывод означает, что с момента запуска сервера 1 запрос был выполнен за время 0.000010 с &lt; t &lt; 0.000100 с, общее время выполнения запросов в данной категории – 0.000072 с. Также 8 запросов были выполнены за время 1 с &lt; t &lt; 10 с каждый, общее время – 47.268416 с.<br>Сбросить данные можно с помощью запроса</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mysql&gt; FLUSH QUERY_RESPONSE_TIME;</div></pre></td></tr></table></figure>
+<p>Вообще данный функционал имеет множество различных настроек. Полная документация опубликована на сайте Percona. Разумеется, статистика недоступна в оригинальной MySQL, а лишь в Percona Server и в MariaDB.</p>
+<p>Ссылки:<br><a href="http://www.percona.com/doc/percona-server/5.5/diagnostics/response_time_distribution.html" target="_blank" rel="external">http://www.percona.com/doc/percona-server/5.5/diagnostics/response_time_distribution.html</a><br><a href="https://mariadb.com/kb/en/query_response_time-plugin/" target="_blank" rel="external">https://mariadb.com/kb/en/query_response_time-plugin/</a><br><a href="http://dev.mysql.com/doc/refman/5.5/en/slow-query-log.html" target="_blank" rel="external">http://dev.mysql.com/doc/refman/5.5/en/slow-query-log.html</a></p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2015/06/17/centos-web2py/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Настройка стека nginx – uwsgi – web2py в CentOS
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/06/17/mysql-start-segfault/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Segfault в MySQL при старте демона&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Gennady Aleksandrov&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/ppoffice">PPOffice</a>
+    </div>
+  </div>
+</footer>
+    
+
+<script src="/js/jquery.min.js"></script>
+
+
+
+<script src="/js/script.js"></script>
+  </div>
+</body>
+</html>

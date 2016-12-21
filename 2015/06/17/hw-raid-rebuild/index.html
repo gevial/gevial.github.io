@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Ребилд аппаратного RAID-массива - Gevial&#39;s Tech Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Добавляем новый диск в массив с помощью MegaCli">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ребилд аппаратного RAID-массива">
+<meta property="og:url" content="https://gevial.github.io/2015/06/17/hw-raid-rebuild/index.html">
+<meta property="og:site_name" content="Gevial's Tech Blog">
+<meta property="og:description" content="Добавляем новый диск в массив с помощью MegaCli">
+<meta property="og:updated_time" content="2016-12-21T15:38:01.472Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Ребилд аппаратного RAID-массива">
+<meta name="twitter:description" content="Добавляем новый диск в массив с помощью MegaCli">
+  
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/tags">Tags</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://gevial.github.io"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <section id="main" class="outer"><article id="post-hw-raid-rebuild" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Ребилд аппаратного RAID-массива
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/06/17/hw-raid-rebuild/" class="article-date">
+  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>У физических дисков в аппаратных RAID-массивах LSI и Intel есть атрибут Firmware State – “состояние прошивки”.</p>
+<p>При штатной работе состояние всех дисков должно быть “Online”. В случае неисправности состояние может перейти в “Failed” или “Unconfigured(bad)”.<br>Иногда (может, это зависит от модели контроллера и версий ПО) после замены диска на новый состояние не меняется – остаётся “Unconfigured (bad)”. В таком случае требуется добавить заменённый диск в массив вручную.</p>
+<p>Выводим информацию о физических дисках и определяем сбойный:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line"># /root/MegaRAID/MegaCli/MegaCli64 -PDList -aAll</div><div class="line">Adapter #0</div><div class="line">Enclosure Device ID: 252</div><div class="line">Slot Number: 8</div><div class="line">Device Id: 8</div><div class="line">Sequence Number: 2</div><div class="line">Media Error Count: 0</div><div class="line">Other Error Count: 0</div><div class="line">Predictive Failure Count: 0</div><div class="line">Last Predictive Failure Event Seq Number: 0</div><div class="line">PD Type: SAS</div><div class="line">Raw Size: 140014MB [0x11177330 Sectors]</div><div class="line">Non Coerced Size: 139502MB [0x11077330 Sectors]</div><div class="line">Coerced Size: 139236MB [0x10ff2000 Sectors]</div><div class="line">Firmware state: Online</div><div class="line">SAS Address(0): 0x5000c500241370a5</div><div class="line">SAS Address(1): 0x0</div><div class="line">Connected Port Number: 1(path0)</div><div class="line">Inquiry Data: SEAGATE ST3146356SS 00063QN4DX50</div><div class="line">Foreign State: None</div><div class="line"></div><div class="line">Enclosure Device ID: 252</div><div class="line">Slot Number: 9</div><div class="line">Device Id: 9</div><div class="line">Sequence Number: 2</div><div class="line">Media Error Count: 0</div><div class="line">Other Error Count: 0</div><div class="line">Predictive Failure Count: 0</div><div class="line">Last Predictive Failure Event Seq Number: 0</div><div class="line">PD Type: SAS</div><div class="line">Raw Size: 140014MB [0x11177330 Sectors]</div><div class="line">Non Coerced Size: 139502MB [0x11077330 Sectors]</div><div class="line">Coerced Size: 139236MB [0x10ff2000 Sectors]</div><div class="line">Firmware state: Unconfigured(bad)</div><div class="line">SAS Address(0): 0x5000c50023e46d19</div><div class="line">SAS Address(1): 0x0</div><div class="line">Connected Port Number: 2(path0)</div><div class="line">Inquiry Data: SEAGATE ST3146356SS 00063QN4CW33</div><div class="line">Foreign State: None</div><div class="line">...</div></pre></td></tr></table></figure>
+<p>В данном случае сбойный диск имеет Enclosure ID 252 и Slot 9. Его идентификатор в MegaCli будет выглядеть как [252:9]. В случае, когда значение Enclosure ID равно N/A, идентификатор принимает вид [:9]. Принудительно помечаем диск как “good”:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># /root/MegaRAID/MegaCli/MegaCli64 -PDMakeGood -PhysDrv[252:9] -a0</div><div class="line">Adapter: 0: EnclId-252 SlotId-9 state changed to Unconfigured-Good.</div></pre></td></tr></table></figure>
+<p>После этого контроллер должен определить диск как “чужой” – “foreign”. Это значит, что контроллер нашёл на диске метаинформацию другого RAID-массива.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"># /root/MegaRAID/MegaCli/MegaCli64 -CfgForeign -Scan -a0</div><div class="line">There are 1 foreign configuration(s) on controller 0. “Чужую” конфигурацию нужно очистить.</div><div class="line"># /root/MegaRAID/MegaCli/MegaCli64 -CfgForeign -Clear -a0</div><div class="line">Foreign configuration 0 is cleared on controller 0.</div></pre></td></tr></table></figure>
+<p>Определим положение диска в массиве. Если после заголовка Physical Disk – пустая строка, значит этот диск не является частью массива.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">#/root/MegaRAID/MegaCli/MegaCli64 -CfgDsply -a0</div><div class="line">...</div><div class="line">DISK GROUPS: 1</div><div class="line">Number of Spans: 1</div><div class="line">SPAN: 0           </div><div class="line">Span Reference: 0x01</div><div class="line">Number of PDs: 4    </div><div class="line">Number of VDs: 1    </div><div class="line">Number of dedicated Hotspares: 0</div><div class="line">Virtual Disk Information:       </div><div class="line">Virtual Disk: 0 (Target Id: 1)</div><div class="line">...</div><div class="line"></div><div class="line">Physical Disk: 2</div><div class="line"></div><div class="line">Physical Disk: 3</div><div class="line">Enclosure Device ID: 252</div><div class="line">Slot Number: 5          </div><div class="line">Device Id: 4            </div><div class="line">...</div></pre></td></tr></table></figure>
+<p>Расположение диска в массиве идентифицируется номером массива, который соответствует Span Reference (в нашем случае 1, 0×0 следует отбросить) и номером ряда, который соответствует номеру диска (в данном случае 2). Подключим диск [252:9] в массив 1, ряд 2.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># /root/MegaRAID/MegaCli/MegaCli64 -PdReplaceMissing -PhysDrv[252:9] -array1 -row2 -a0</div><div class="line">Adapter: 0: Missing PD at Array 1, Row 2 is replaced</div></pre></td></tr></table></figure>
+<p>Теперь следует вручную запустить ребилд массива.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># /root/MegaRAID/MegaCli/MegaCli64 -PDRbld -Start -PhysDrv[252:4] -a0</div><div class="line">Started rebuild progress on device(Encl-252 Slot-4)</div></pre></td></tr></table></figure>
+<p>Cсылки: <a href="http://hwraid.le-vert.net/wiki/LSIMegaRAIDSAS" target="_blank" rel="external">http://hwraid.le-vert.net/wiki/LSIMegaRAIDSAS</a></p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hardware/">hardware</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/storage/">storage</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2015/06/17/gethostbyname-ndots/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Разрешение коротких имён с помощью gethostbyname()
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/06/17/routes-on-vpn-connect-osx/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Автосоздание маршрутов при подключении к VPN на macOS&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Gennady Aleksandrov&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/ppoffice">PPOffice</a>
+    </div>
+  </div>
+</footer>
+    
+
+<script src="/js/jquery.min.js"></script>
+
+
+
+<script src="/js/script.js"></script>
+  </div>
+</body>
+</html>

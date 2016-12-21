@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Gevial&#39;s Tech Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Gevial's Tech Blog">
+<meta property="og:url" content="https://gevial.github.io/page/4/index.html">
+<meta property="og:site_name" content="Gevial's Tech Blog">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Gevial's Tech Blog">
+  
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/tags">Tags</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://gevial.github.io"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <section id="main" class="outer">
+      <article id="post-puppet-error-400" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/06/17/puppet-error-400/">Puppet Error 400</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/06/17/puppet-error-400/" class="article-date">
+  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Сегодня добавил в репозиторий Puppet новый модуль, прописал его в манифесте ноды. На ноде puppet agent не мог получить каталог с сервера - сервер “не видел” модуль.</p>
+<p>В консоли это выглядело так:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">Error: Could not retrieve catalog from remote server:</div><div class="line">Error 400 on SERVER: Puppet::Parser::AST::Resource failed with error ArgumentError:</div><div class="line">Could not find declared class rclocal at</div><div class="line">/var/git/puppet-main/production/manifests/service_nodes/redis.timeweb.net.pp:31</div><div class="line">on node redis1.timeweb.net</div><div class="line">Warning: Not using cache on failed catalog</div><div class="line">Error: Could not retrieve catalog; skipping run</div></pre></td></tr></table></figure>
+<p>Модуль располагался в правильной директории, ошибки не должно было быть. Оказалось, что причиной являлось отсутствие некоторых обязательных полей в <code>metadata.json</code> этого модуля. После добавления всех обязательных полей из <a href="https://docs.puppetlabs.com/puppet/latest/reference/modules_publishing.html#fields-in-metadatajson" target="_blank" rel="external">https://docs.puppetlabs.com/puppet/latest/reference/modules_publishing.html#fields-in-metadatajson</a> ошибка исчезла.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/puppet/">puppet</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/troubleshooting/">troubleshooting</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-python-multiprocessing-sysexit" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/06/17/python-multiprocessing-sysexit/">multiprocessing.Process и sys.exit()</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/06/17/python-multiprocessing-sysexit/" class="article-date">
+  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Мониторинг времени отклика серверов хостинга мы мониторим так.</p>
+<p>Есть скрипт, который берёт список серверов и запрашивает с каждого веб-страничку (Wordpress с плагином Query Monitor), парсит оттуда время генерации страницы и время работы БД, по пути считает время скачивания странички со всей статикой.<br>Сначала опрос происходил последовательно в цикле, но это не есть путь самурая, поэтому решено было распараллелить процесс.<br>Сперва взгляд лёг на модуль threading. Однако я тогда ещё не ощутил на практике недостатки GIL (Global Interpreter Lock). Дело обернулось тем, что для каждого сервера время скачивания было 6-7 секунд, хотя настоящее значение лежит в пределах секунды. Так произошло как раз из-за GIL: таймеры в потоках были запущены, но фактически выполнялся лишь один поток, остальные продолжали ждать.</p>
+<p>Тогда я решил поменять threading на multiprocessing, благо у них очень похожая семантика объектов.<br>Я вынес рабочий код из подкласса <code>threading.Thread</code> в функцию (не стал делать подкласс <code>multiprocessing.Process</code>, так как захотелось использовать пул подпроцессов - <code>multiprocessing.Pool</code>, а он не поддерживает создание чайлдов из кастомных классов), функция в зависимости от статуса исполнения завершалась <code>sys.exit(0)</code> или <code>sys.exit(1)</code>. Но мой код не заработал.</p>
+<p>Проблема заключалась в том, что, после обработки всех серверов, скрипт и его дочерние процесы продолжали работать. <code>strace</code> показал, что они висят в ожидании мьютекса. По всей видимости, <code>multiprocessing.Process</code> оборачивает полезный код, передаваемый в виде функции, дополнительными вызовами, в частности, отпускает мьютекс. В моей функции был вызов <code>sys.exit()</code>, поэтому этот код никогда не вызывался. Это лишь предположение, но факт оказался фактом: когда я поменял <code>sys.exit()</code> на <code>return</code>, скрипт и его подпроцессы успешно завершались.</p>
+<p>Вывод: не используйте <code>sys.exit()</code> в функции, передаваемой в качестве <code>target</code> экземпляру <code>multiprocessing.Process</code>.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-reinstall-grub" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/06/17/reinstall-grub/">Сервер не загружается после замены диска</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/06/17/reinstall-grub/" class="article-date">
+  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>После замены неисправного диска в Linux он не всегда может быть обнаружен системой (типичное поведение для старых ядер).</p>
+<p>В таком случае требуется перезагрузить сервер. Однако, бывает так, что после перезагрузки BIOS не может найти загрузчик – он мог быть установлен в MBR вылетевшего диска.<br>В таком случае требуется загрузить сервер с LiveCD. Я пользуюсь образами Gentoo. После загрузки в среду восстановления нужно разметить диск аналогично исправному. Если объём небольшой, и rebuild массива пройдёт быстро, то можно добавить диск в массив. После этого необходимо переустановить GRUB. Для этого надо подмонтировать массив и воспользоваться утилитой <code>grub-install</code>. Дело в том, что в LiveCD Gentoo нет утилит GRUB.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"># mkdir /mnt/tmp</div><div class="line"># mount /dev/md126 /mnt/tmp</div><div class="line"># mount -o bind /dev /mnt/tmp/dev</div><div class="line"># chroot /mnt/tmp</div></pre></td></tr></table></figure>
+<p>В chroot-окружении доступны все утилиты с сервера. Пытаемся установить загрузчик:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># grub-install /dev/sda</div><div class="line">/dev/md126 does not have any corresponding BIOS drive</div></pre></td></tr></table></figure>
+<p>Неудача. Дело в том, что загрузчик грузится с MBR диска, он не может быть загружен с MD-устройства. Впрочем, это не мешает ему распознавать программные RAID-массивы и загружать ядро. Установить GRUB в /dev/sda всё же можно вручную:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"># grub</div><div class="line">grub&gt; root (hd0,0)        </div><div class="line">root (hd0,0)</div><div class="line">Filesystem type is ext2fs, partition type 0xfd</div><div class="line">grub&gt; setup (hd0)</div><div class="line">setup (hd0)</div><div class="line">Checking if &quot;/boot/grub/stage1&quot; exists... no</div><div class="line">Checking if &quot;/grub/stage1&quot; exists... yes</div><div class="line">Checking if &quot;/grub/stage2&quot; exists... yes</div><div class="line">Checking if &quot;/grub/e2fs_stage1_5&quot; exists... yes</div><div class="line">Running &quot;embed /grub/e2fs_stage1_5 (hd0)&quot;...  16 sectors are embedded.</div><div class="line">succeeded</div><div class="line">Running &quot;install /grub/stage1 (hd0) (hd0)1+16 p (hd0,0)/grub/stage2 /grub/grub.conf&quot;... succeeded</div><div class="line">Done.</div><div class="line">grub&gt; quit</div><div class="line"># reboot</div></pre></td></tr></table></figure>
+<p>Также не забудьте изменить имя MD-устройства, если оно изменилось (например, с md0 на md126 ) в файле <code>/etc/fstab</code>. После перезагрузки сервер должен успешно подняться.</p>
+<p>Ссылки:<br><a href="http://idolinux.blogspot.ru/2009/07/reinstall-grub-bootloader-on-md0.html" target="_blank" rel="external">http://idolinux.blogspot.ru/2009/07/reinstall-grub-bootloader-on-md0.html</a></p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/troubleshooting/">troubleshooting</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-sata-host-scan" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/06/17/sata-host-scan/">Инициализация сканирования устройств SATA-контроллером в Linux</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/06/17/sata-host-scan/" class="article-date">
+  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Некоторые платформы не определяют диски автоматически - после “горячего” подключения в системе их не видно.</p>
+<p>Можно запустить сканирование подключённых к SATA-контроллеру устройств:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">echo &quot;- - -&quot; &gt; /sys/class/scsi_host/host0/scan</div></pre></td></tr></table></figure>
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hardware/">hardware</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-several-ip-assign" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/06/17/several-ip-assign/">Назначение интерфейсу нескольких IP-адресов при загрузке</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/06/17/several-ip-assign/" class="article-date">
+  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>В RHEL-совместимых дистрибутивах конфигурация сетевых интерфейсов хранится в файлах <code>/etc/sysconfig/network-scripts/ifcfg-&lt;iface&gt;</code>. Пример файла <code>ifcfg-eth0</code>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">DEVICE=&quot;eth0&quot;</div><div class="line">IPADDR0=&quot;1.2.3.4&quot;</div><div class="line">NETMASK0=&quot;255.255.255.0&quot;</div><div class="line">BROADCAST0=&quot;1.2.3.255&quot;</div><div class="line">GATEWAY=&quot;1.2.3.1&quot;</div><div class="line">IPADDR1=&quot;5.6.7.8&quot;</div><div class="line">NETMASK1=&quot;255.255.0.0&quot;</div><div class="line">BROADCAST1=&quot;5.6.255.255&quot;</div><div class="line">ONBOOT=&quot;yes&quot;</div></pre></td></tr></table></figure>
+<p>При такой конфигурации интерфейс eth0 при загрузке получит два сетевых адреса с разной маской, также в таблицу маршрутизации будет добавлена указанная запись для шлюза по умолчанию.<br>В Debian и дистрибутивах, основанных на нём, конфигурация хранится в одном файле - <code>/etc/network/interfaces</code>. Debian Handbook рекомендует добавлять в этот файл дополнительные секции с параметрами псевдонимов. Пример файла:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">auto eth0</div><div class="line">iface eth0 inet static</div><div class="line">address 11.2.3.4</div><div class="line">netmask 255.255.255.0</div><div class="line">gateway 11.2.3.1</div><div class="line">dns-nameservers 8.8.8.8 8.8.4.4</div><div class="line"></div><div class="line">iface eth0 inet static</div><div class="line">address 192.168.1.66</div><div class="line">netmask 255.255.255.0</div><div class="line"></div><div class="line">auto lo</div><div class="line">iface lo inet loopback</div></pre></td></tr></table></figure>
+<p>Наиболее удобный способ предоставляет дистрибутив Gentoo. Примерное содержание файла конфигурации сети <code>/etc/conf.d/net</code>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">config_eth0=(</div><div class="line">    &quot;1.2.3.4/24&quot;</div><div class="line">    &quot;5.6.7.8/16&quot;</div><div class="line">)</div><div class="line">routes_eth0=( &quot;default via 1.2.3.1&quot; )</div></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/network/">network</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-delete-block-device" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/06/17/delete-block-device/">Удаление дисков из системы в Linux</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/06/17/delete-block-device/" class="article-date">
+  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Перед физическим извлечение дисков в Linux следует отключить их от SATA-контроллера:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">echo 1 &gt; /sys/block/sdc/device/delete</div></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hardware/">hardware</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <nav id="page-nav">
+        <a class="extend prev" rel="prev" href="/page/3/">&laquo; Назад</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span>
+      </nav>
+    </section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Gennady Aleksandrov&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/ppoffice">PPOffice</a>
+    </div>
+  </div>
+</footer>
+    
+
+<script src="/js/jquery.min.js"></script>
+
+
+
+<script src="/js/script.js"></script>
+  </div>
+</body>
+</html>

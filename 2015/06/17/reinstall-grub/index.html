@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Сервер не загружается после замены диска - Gevial&#39;s Tech Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="После замены неисправного диска в Linux он не всегда может быть обнаружен системой (типичное поведение для старых ядер).
+В таком случае требуется перезагрузить сервер. Однако, бывает так, что после пе">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Сервер не загружается после замены диска">
+<meta property="og:url" content="https://gevial.github.io/2015/06/17/reinstall-grub/index.html">
+<meta property="og:site_name" content="Gevial's Tech Blog">
+<meta property="og:description" content="После замены неисправного диска в Linux он не всегда может быть обнаружен системой (типичное поведение для старых ядер).
+В таком случае требуется перезагрузить сервер. Однако, бывает так, что после пе">
+<meta property="og:updated_time" content="2016-12-21T15:36:20.544Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Сервер не загружается после замены диска">
+<meta name="twitter:description" content="После замены неисправного диска в Linux он не всегда может быть обнаружен системой (типичное поведение для старых ядер).
+В таком случае требуется перезагрузить сервер. Однако, бывает так, что после пе">
+  
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/tags">Tags</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://gevial.github.io"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <section id="main" class="outer"><article id="post-reinstall-grub" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Сервер не загружается после замены диска
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/06/17/reinstall-grub/" class="article-date">
+  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>После замены неисправного диска в Linux он не всегда может быть обнаружен системой (типичное поведение для старых ядер).</p>
+<p>В таком случае требуется перезагрузить сервер. Однако, бывает так, что после перезагрузки BIOS не может найти загрузчик – он мог быть установлен в MBR вылетевшего диска.<br>В таком случае требуется загрузить сервер с LiveCD. Я пользуюсь образами Gentoo. После загрузки в среду восстановления нужно разметить диск аналогично исправному. Если объём небольшой, и rebuild массива пройдёт быстро, то можно добавить диск в массив. После этого необходимо переустановить GRUB. Для этого надо подмонтировать массив и воспользоваться утилитой <code>grub-install</code>. Дело в том, что в LiveCD Gentoo нет утилит GRUB.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"># mkdir /mnt/tmp</div><div class="line"># mount /dev/md126 /mnt/tmp</div><div class="line"># mount -o bind /dev /mnt/tmp/dev</div><div class="line"># chroot /mnt/tmp</div></pre></td></tr></table></figure>
+<p>В chroot-окружении доступны все утилиты с сервера. Пытаемся установить загрузчик:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># grub-install /dev/sda</div><div class="line">/dev/md126 does not have any corresponding BIOS drive</div></pre></td></tr></table></figure>
+<p>Неудача. Дело в том, что загрузчик грузится с MBR диска, он не может быть загружен с MD-устройства. Впрочем, это не мешает ему распознавать программные RAID-массивы и загружать ядро. Установить GRUB в /dev/sda всё же можно вручную:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"># grub</div><div class="line">grub&gt; root (hd0,0)        </div><div class="line">root (hd0,0)</div><div class="line">Filesystem type is ext2fs, partition type 0xfd</div><div class="line">grub&gt; setup (hd0)</div><div class="line">setup (hd0)</div><div class="line">Checking if &quot;/boot/grub/stage1&quot; exists... no</div><div class="line">Checking if &quot;/grub/stage1&quot; exists... yes</div><div class="line">Checking if &quot;/grub/stage2&quot; exists... yes</div><div class="line">Checking if &quot;/grub/e2fs_stage1_5&quot; exists... yes</div><div class="line">Running &quot;embed /grub/e2fs_stage1_5 (hd0)&quot;...  16 sectors are embedded.</div><div class="line">succeeded</div><div class="line">Running &quot;install /grub/stage1 (hd0) (hd0)1+16 p (hd0,0)/grub/stage2 /grub/grub.conf&quot;... succeeded</div><div class="line">Done.</div><div class="line">grub&gt; quit</div><div class="line"># reboot</div></pre></td></tr></table></figure>
+<p>Также не забудьте изменить имя MD-устройства, если оно изменилось (например, с md0 на md126 ) в файле <code>/etc/fstab</code>. После перезагрузки сервер должен успешно подняться.</p>
+<p>Ссылки:<br><a href="http://idolinux.blogspot.ru/2009/07/reinstall-grub-bootloader-on-md0.html" target="_blank" rel="external">http://idolinux.blogspot.ru/2009/07/reinstall-grub-bootloader-on-md0.html</a></p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/troubleshooting/">troubleshooting</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2015/06/17/python-multiprocessing-sysexit/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          multiprocessing.Process и sys.exit()
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/06/17/sata-host-scan/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Инициализация сканирования устройств SATA-контроллером в Linux&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Gennady Aleksandrov&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/ppoffice">PPOffice</a>
+    </div>
+  </div>
+</footer>
+    
+
+<script src="/js/jquery.min.js"></script>
+
+
+
+<script src="/js/script.js"></script>
+  </div>
+</body>
+</html>

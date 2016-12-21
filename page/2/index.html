@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Gevial&#39;s Tech Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Gevial's Tech Blog">
+<meta property="og:url" content="https://gevial.github.io/page/2/index.html">
+<meta property="og:site_name" content="Gevial's Tech Blog">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Gevial's Tech Blog">
+  
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/tags">Tags</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://gevial.github.io"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <section id="main" class="outer">
+      <article id="post-lsi-raid-controller-cache-policies" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/01/15/lsi-raid-controller-cache-policies/">Политики кэширования в RAID-контроллерах Avago (LSI)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/01/15/lsi-raid-controller-cache-policies/" class="article-date">
+  <time datetime="2016-01-15T09:00:00.000Z" itemprop="datePublished">2016-01-15</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Разъяснение настроек кэширования данных в контроллерах LSI (оригинал по <a href="http://lists.us.dell.com/pipermail/linux-poweredge/2006-May/025738.html" target="_blank" rel="external">ссылке</a>):</p>
+<p>When dealing with LSI controllers there are actually 3 caches to deal with. From the OMSA documentation (I have deleted all references to non-LSI ptions)</p>
+<h4 id="Read-Policy"><a href="#Read-Policy" class="headerlink" title="Read Policy:"></a>Read Policy:</h4><p>The read policies indicate whether or not the controller should read sequential sectors of the logical drive when seeking data.</p>
+<ul>
+<li><strong>Read-Ahead</strong>. When using read-ahead policy, the controller reads sequential sectors of the logical drive when seeking data. Read-ahead policy may improve system performance if the data is actually written to sequential sectors of the logical drive.</li>
+<li><strong>No-Read-Ahead</strong>. Selecting no-read-ahead policy indicates that the controller should not use read-ahead policy.</li>
+<li><strong>Adaptive Read-Ahead</strong>. When using adaptive read-ahead policy, the controller initiates read-ahead only if the two most recent read requests ccessed sequential sectors of the disk. If subsequent read requests access random sectors of the disk, the controller reverts to no-read-ahead olicy. The controller continues to evaluate whether read requests are accessing sequential sectors of the disk, and can initiate read-ahead if ecessary.</li>
+</ul>
+<h4 id="Write-Policy"><a href="#Write-Policy" class="headerlink" title="Write Policy:"></a>Write Policy:</h4><p>The write policies specify whether the controller sends a write-request completion signal as soon as the data is in the cache or after it has been ritten to disk.</p>
+<ul>
+<li><strong>Write-Back</strong>. When using write-back caching, the controller sends a write-request completion signal as soon as the data is in the controller ache but has not yet been written to disk. Write-back caching may provide improved performance since subsequent read requests can more quickly retrieve data from the controller cache than they could from the disk. Write-back caching also entails a data security risk, however, since a system failure could prevent the data from being written to disk even though the controller has sent a write-request completion signal. In this case, data may be lost. Other applications may also experience problems when taking actions that assume the data is available on the disk.</li>
+<li><strong>Write-Through</strong>. When using write-through caching, the controller sends a write-request completion signal only after the data is written to he disk. Write-through caching provides better data security than write-back caching, since the system assumes the data is available only after it as been safely written to the disk.</li>
+</ul>
+<h4 id="Cache-Policy"><a href="#Cache-Policy" class="headerlink" title="Cache Policy:"></a>Cache Policy:</h4><p>The Direct I/O and Cache I/O cache policies apply to reads on a specific virtual disk. These settings do not affect the read-ahead policy. The cache policies are as follows:</p>
+<ul>
+<li><strong>Cache I/O</strong>. Specifies that all reads are buffered in cache memory.</li>
+<li><strong>Direct I/O</strong>. Specifies that reads are not buffered in cache memory. When using direct I/O, data is transferred to the controller cache and he host system simultaneously during a read request. If a subsequent read request requires data from the same data block, it can be read directly from the controller cache. The direct I/O setting does not override the cache policy settings. Direct I/O is also the default setting.</li>
+</ul>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/storage/">storage</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-mysql-range-access-method-explained" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  <h1 itemprop="name">
+    <a class="article-title" href="http://jorgenloland.blogspot.ru/2011/08/mysql-range-access-method-explained.html" target="_blank" itemprop="url">Объяснение работы range access method и ICP в MySQL</a>
+  </h1>
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/01/12/mysql-range-access-method-explained/" class="article-date">
+  <time datetime="2016-01-12T09:00:00.000Z" itemprop="datePublished">2016-01-12</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>В статье объясняется, почему при использовании композитного индекса вот такой запрос будет использовать весь индекс:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> orders <span class="keyword">WHERE</span> customer_id = <span class="number">2</span> <span class="keyword">AND</span> <span class="keyword">value</span> &gt; <span class="number">1000</span>;</div></pre></td></tr></table></figure>
+<p>а такой:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> orders <span class="keyword">WHERE</span> customer_id &lt; <span class="number">2</span> <span class="keyword">AND</span> <span class="keyword">value</span> = <span class="number">1000</span>;</div></pre></td></tr></table></figure>
+<p>лишь первую его часть.</p>
+<p>В MySQL 5.6 реализован <a href="http://jorgenloland.blogspot.co.uk/2012/03/index-condition-pushdown-to-rescue.html" target="_blank" rel="external">Index Condition Pushdown</a>, который помогает в ряде случаев обойти описанное ограничение.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/performance/">performance</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-tpc-h" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  <h1 itemprop="name">
+    <a class="article-title" href="http://www.tpc.org/tpch/" target="_blank" itemprop="url">TPC-H</a>
+  </h1>
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/01/12/tpc-h/" class="article-date">
+  <time datetime="2016-01-12T09:00:00.000Z" itemprop="datePublished">2016-01-12</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>TPC-H - превосходный набор данных и запросов к ним для проведения тестов производительности баз данных.<br>Ещё один отличный набор данных из разных областей деятельности: <a href="http://www.databaseanswers.org/data_models/" target="_blank" rel="external">http://www.databaseanswers.org/data_models/</a></p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/performance/">performance</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tool/">tool</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-python-no-sys-exit-in-signal-handlers" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/12/19/python-no-sys-exit-in-signal-handlers/">Настройка логирование в Python</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/12/19/python-no-sys-exit-in-signal-handlers/" class="article-date">
+  <time datetime="2015-12-19T09:00:00.000Z" itemprop="datePublished">2015-12-19</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Архитектура логирования в Python описана в <a href="https://www.python.org/dev/peps/pep-0282/" target="_blank" rel="external">PEP 282</a>. В состав стандартной библиотеки входит модуль <code>logging</code>.<br>Пример настройки логирования для скрипта. Вывод сообщений уровня DEBUG и выше идёт в файл, вывод сообщений уровня INFO и выше - на консоль.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> logging</div><div class="line"></div><div class="line">logger = logging.getLogger(__name__)</div><div class="line">logger.setLevel(logging.DEBUG)</div><div class="line"></div><div class="line">console = logging.StreamHandler()</div><div class="line">console.setLevel(logging.INFO)</div><div class="line">console.setFormatter(logging.Formatter(<span class="string">'[%(levelname)s] %(message)s'</span>))</div><div class="line">logger.addHandler(console)</div><div class="line"></div><div class="line">logfile = logging.FileHandler(LOGFILE)</div><div class="line">logfile.setLevel(logging.DEBUG)</div><div class="line">logfile.setFormatter(logging.Formatter(<span class="string">'%(asctime)s [%(levelname)s] %(message)s'</span>,</div><div class="line">                                       datefmt=<span class="string">'[%d.%m.%Y - %H:%M:%S]'</span>))</div><div class="line">logger.addHandler(logfile)</div></pre></td></tr></table></figure>
+<p>Начиная с Python 2.7 настройки <code>logging</code> можно описать в словаре. Это намного более удобный способ, хоть и менее гибкий:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> logging</div><div class="line"><span class="keyword">from</span> logging.config <span class="keyword">import</span> dictConfig</div><div class="line"></div><div class="line">logging_config = dict(</div><div class="line">    version=<span class="number">1</span>,</div><div class="line">    formatters=&#123;</div><div class="line">        <span class="string">'console'</span>: &#123;</div><div class="line">            <span class="string">'format'</span>: <span class="string">'[%(levelname)s] %(message)s'</span></div><div class="line">        &#125;,</div><div class="line">        <span class="string">'file'</span>: &#123;</div><div class="line">            <span class="string">'format'</span>: <span class="string">'%(asctime)s [%(levelname)s] %(message)s'</span>,</div><div class="line">            <span class="string">'datefmt'</span>: <span class="string">'[%d.%m.%Y - %H:%M:%S]'</span></div><div class="line">        &#125;</div><div class="line">    &#125;,</div><div class="line">    handlers=&#123;</div><div class="line">        <span class="string">'console'</span>: &#123;</div><div class="line">            <span class="string">'class'</span>: <span class="string">'logging.StreamHandler'</span>,</div><div class="line">            <span class="string">'formatter'</span>: <span class="string">'console'</span>,</div><div class="line">            <span class="string">'level'</span>: logging.INFO</div><div class="line">        &#125;,</div><div class="line">        <span class="string">'file'</span>: &#123;</div><div class="line">            <span class="string">'class'</span>: <span class="string">'logging.FileHandler'</span>,</div><div class="line">            <span class="string">'formatter'</span>: <span class="string">'file'</span>,</div><div class="line">            <span class="string">'filename'</span>: logfile,</div><div class="line">            <span class="string">'level'</span>: logging.DEBUG</div><div class="line">        &#125;</div><div class="line">    &#125;,</div><div class="line">    loggers=&#123;</div><div class="line">        <span class="string">'root'</span>: &#123;<span class="string">'handlers'</span>: [<span class="string">'console'</span>, <span class="string">'file'</span>], <span class="string">'level'</span>: logging.DEBUG&#125;</div><div class="line">    &#125;</div><div class="line">)</div><div class="line"></div><div class="line">dictConfig(logging_config)</div><div class="line">logger = logging.getLogger(<span class="string">'root'</span>)</div></pre></td></tr></table></figure>
+<p>Более подробно о логировании в Python написано тут: <a href="http://docs.python-guide.org/en/latest/writing/logging/" target="_blank" rel="external">Hitchhiker’s Guide to Python</a></p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-puppet-cert-error-header-too-long" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/10/12/puppet-cert-error-header-too-long/">Ошибка puppet cert - header too long</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/10/12/puppet-cert-error-header-too-long/" class="article-date">
+  <time datetime="2015-10-11T21:00:00.000Z" itemprop="datePublished">2015-10-12</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Вызов <code>puppet cert list</code> завершается с неочевидной ошибкой:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">root@puppet.example.com:~# puppet cert list</div><div class="line">Error: header too long</div><div class="line">root@puppet.example.com:~#</div></pre></td></tr></table></figure>
+<p>Наиболее частая причина - пустой запрос на подпись сертификата. В таком случае нам поможет пара команд:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">root@puppet.example.com:~# cd /var/lib/puppet/ssl/ca/requests</div><div class="line">root@puppet.example.com:/var/lib/puppet/ssl/ca/requests# find . -type f -empty</div><div class="line">./bogushost.example.com.pem</div><div class="line">root@puppet.example.com:/var/lib/puppet/ssl/ca/requests# rm ./bogushost.example.com.pem</div></pre></td></tr></table></figure>
+<p>Можно, конечно, запустить <code>find</code> с ключом <code>-delete</code>, но тогда вы не узнаете, какой хост отправил некорректный запрос.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/puppet/">puppet</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/troubleshooting/">troubleshooting</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-mysql-charset-proc" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/09/24/mysql-charset-proc/">Хранимые процедуры и кодировка</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/09/24/mysql-charset-proc/" class="article-date">
+  <time datetime="2015-09-23T21:00:00.000Z" itemprop="datePublished">2015-09-24</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Столкнулись с серьёзной деградацией производительности хранимых функций MySQL на реплике.</p>
+<p>Выяснилось, что запросы к хранимой функции выполняются слишком долго. Анализ PROCESSLIST’а выявил, что на мастере и на реплике запросы, выполняющиеся внутри функции, выглядят по-рзному.</p>
+<p>Мастер:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">mysql&gt; SELECT SUM(cost) FROM ... LEFT JOIN ... WHERE customer_id = &apos;johndoe&apos; AND end_date &lt; NOW() AND NOT g.name &lt;=&gt; &quot;certificate&quot;;</div><div class="line">+-----------+</div><div class="line">| SUM(cost) |</div><div class="line">+-----------+</div><div class="line">|        50 |</div><div class="line">+-----------+</div><div class="line">1 row in set (0.00 sec)</div></pre></td></tr></table></figure>
+<p>Реплика:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">mysql&gt; SELECT SUM(cost) FROM ... LEFT JOIN ... WHERE customer_id = NAME_CONST(&apos;customer&apos;,_utf8&apos;johndoe&apos; COLLATE &apos;utf8_general_ci&apos;) AND end_date &lt; NOW() AND NOT g.name &lt;=&gt; &quot;certificate&quot;;</div><div class="line">+-----------+</div><div class="line">| SUM(cost) |</div><div class="line">+-----------+</div><div class="line">|        50 |</div><div class="line">+-----------+</div><div class="line">1 row in set (1.64 sec)</div><div class="line"></div><div class="line">mysql&gt;</div></pre></td></tr></table></figure>
+<p>На реплике происходит перевод аргумента функции в другую кодировку. Из-за того, что в запросе поле _customer<em>id</em> сравнивается с результатом встроенной функции, а не с константой, не используется индекс. Из-за этого и происходит деградация производительности.</p>
+<p>Причина оказалась в том, что база данных на реплике создана с другими CHARACTER SET и COLLATION, нежели чем на мастере (utf8 против koi8r).</p>
+<p>Как временное решение пришлось изменить код функции на реплике, явно указав аргументу <code>customer</code> кодировку koi8r. Чтобы предотвратить появление таких ситуаций в будущем, надо лишь выполнить <code>ALTER SCHEMA billing CHARACTER SET = &quot;koi8r&quot; COLLATE = &quot;koi8r_general_ci&quot;</code>.</p>
+<p>Ссылки по теме:</p>
+<ol>
+<li><a href="http://www.justincarmony.com/blog/2011/02/02/mysql-stored-procedure-name_const-and-character-sets/" target="_blank" rel="external"> http://www.justincarmony.com/blog/2011/02/02/mysql-stored-procedure-name_const-and-character-sets/</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/performance/">performance</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-mysql-ip" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/09/07/mysql-ip/">Сравнение IP-адресов в MySQL</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/09/07/mysql-ip/" class="article-date">
+  <time datetime="2015-09-06T21:00:00.000Z" itemprop="datePublished">2015-09-07</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>В MySQL есть две интересные функции: <code>INET_ATON()</code> и <code>INET_NTOA()</code>.</p>
+<p>Они позволяют переводить IP-адреса в десятичный вид и обратно. Это очень удобно, если нужно выбрать из таблицы IP, принадлежащий определённой подсети.<br>Например:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span></div><div class="line">    ip <span class="keyword">AS</span> stor_backup_ip</div><div class="line"><span class="keyword">FROM</span></div><div class="line">    <span class="string">`billing`</span>.<span class="string">`servers_backup_interfaces`</span></div><div class="line"><span class="keyword">WHERE</span></div><div class="line">    (<span class="keyword">INET_ATON</span>(ip) &amp; (<span class="number">-1</span>&lt;&lt;<span class="number">11</span>)) = <span class="keyword">INET_NTOA</span>(<span class="string">"172.16.16.0"</span>)</div><div class="line"><span class="keyword">AND</span></div><div class="line">    <span class="keyword">name</span> = <span class="string">"storage75"</span>;</div></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-puppet-concat-order" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/07/17/puppet-concat-order/">Неприятная особенность модуля Puppet concat</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/07/17/puppet-concat-order/" class="article-date">
+  <time datetime="2015-07-16T21:00:00.000Z" itemprop="datePublished">2015-07-17</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Я потратил два часа в поисках причины неправильного порядка фрагментов в результирующем файле.</p>
+<p>В документации к популярному и поддерживаемому Puppet Labs <a href="https://forge.puppetlabs.com/puppetlabs/concat" target="_blank" rel="external">модулю Puppet concat</a> говорится, что значение параметра <code>order</code> для дефайна <code>concat::fragment</code> может быть</p>
+<blockquote>
+<p>a string (recommended) or an integer</p>
+</blockquote>
+<p>По факту (по крайней мере в Puppet 3.7) integer не сработает. Нужно указывать string. Ниже пример.</p>
+<p>Плохо:</p>
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">concat::<span class="keyword">fragment</span> &#123; <span class="string">'opening'</span>:</div><div class="line">  <span class="attr">target</span>  =&gt; <span class="variable">$::dummy_module::conf::conf_path</span>,</div><div class="line">  <span class="attr">order</span>   =&gt; <span class="number">1</span>,</div><div class="line">  <span class="attr">content</span> =&gt; <span class="string">"databases = &#123;\n"</span>,</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>Хорошо:</p>
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">concat::<span class="keyword">fragment</span> &#123; <span class="string">'opening'</span>:</div><div class="line">  <span class="attr">target</span>  =&gt; <span class="variable">$::dummy_module::conf::conf_path</span>,</div><div class="line">  <span class="attr">order</span>   =&gt; <span class="string">'01'</span>,</div><div class="line">  <span class="attr">content</span> =&gt; <span class="string">"databases = &#123;\n"</span>,</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/puppet/">puppet</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/troubleshooting/">troubleshooting</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-local-elk-fast-start" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/07/14/local-elk-fast-start/">Запуск ELK stack локально для быстрого анализа лог-файлов</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/07/14/local-elk-fast-start/" class="article-date">
+  <time datetime="2015-07-13T21:00:00.000Z" itemprop="datePublished">2015-07-14</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Столкнулся с необходимостью проанализировать логи Apache хостингового сервера. Период - около недели. Логов много - почти 2 миллиона строк.</p>
+<p>Самое удобное решение - развернуть на локальной машине ELK stack (Elasticsearch, Logstash, Kibana) и запихнуть туда логи. Делается это очень быстро.</p>
+<p>1) Скачиваем ELK с <a href="http://elastic.co" target="_blank" rel="external">elastic.co</a> (версия Elasticsearch должна быть та, которая совпадает с Logstash. В моём случае это 1.5.2 - последнняя версия Logstash)</p>
+<p>2)  Пишем конфиг для Logstash. Вот мой, для логов Apache:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">input &#123;</div><div class="line">    file &#123;</div><div class="line">        path =&gt; [ &quot;/home/gena/Desktop/galileo.log&quot; ]</div><div class="line">        sincedb_path =&gt; &quot;/dev/null&quot;</div><div class="line">        start_position =&gt; &quot;beginning&quot;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">filter &#123;</div><div class="line">     grok &#123;</div><div class="line">         match =&gt; &#123; &quot;message&quot; =&gt; &quot;apache_access: %&#123;IPORHOST:http_host&#125; %&#123;DATA:remote_addr&#125; .* \[%&#123;HTTPDATE:time_local&#125;\] \&quot;(?&lt;request_method&gt;[A-Z]+) %&#123;DATA:request&#125; HTTP\/[01]\.[0-9]\&quot; (?&lt;status&gt;\d\d\d) (?&lt;body_bytes_sent&gt;.*) %&#123;QS:http_referer&#125; %&#123;QS:http_user_agent&#125;&quot; &#125;</div><div class="line">     &#125;</div><div class="line">     date &#123;</div><div class="line">         match =&gt; [ &quot;time_local&quot;, &quot;dd/MMM/YYYY:HH:mm:ss Z&quot; ]</div><div class="line">     &#125;</div><div class="line">&#125;</div><div class="line">output &#123;</div><div class="line">    elasticsearch &#123;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>Следует обратить внимание на опции <code>sincedb_path</code> и <code>start_position</code>. Если их не указать, можно впасть в долгие попытки понять, почему же не работает ввод из файла (если, к примеру, были ошибки в конфигурации и пришлось запускать Logstash несколько раз).</p>
+<p>3) Запускаем Elastisearch и Logstash:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ logstash-1.5.2/bin/logstash -f apache.conf</div><div class="line">$ elasticsearch-1.5.2/bin/elasticsearch</div></pre></td></tr></table></figure>
+<p>4) Логи уже потекли в Elasticsearch. Теперь надо создать индекс <code>.kibana</code> для служебных нужд Kibana и включить для него Dynamic Mapping.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ curl -XPUT localhost:9200/.kibana -d &apos;&#123; &quot;index.mapper.dynamic&quot;: true &#125;&apos;</div></pre></td></tr></table></figure></p>
+<p>5) Запускаем Kibana</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kibana-4.1.1-linux-x64/bin/kibana</div></pre></td></tr></table></figure>
+<p>6) Открываем <a href="http://localhost:5601" target="_blank" rel="external">http://localhost:5601</a> (Kibana) и настраиваем шаблон для отображения индексов.</p>
+<p>7) …</p>
+<p>8) PROFIT!!!</p>
+<p>Теперь можно работать с логами по-человечески.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/apache/">apache</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/elk/">elk</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/logs/">logs</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-debug-502-php" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/06/19/debug-502-php/">Отладка ошибки 502, вызываемой падением PHP-сценария</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/06/19/debug-502-php/" class="article-date">
+  <time datetime="2015-06-18T21:00:00.000Z" itemprop="datePublished">2015-06-19</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Ошибка 502 является, пожалуй, наиболее сложной для отладки.</p>
+<p>Однако, если ошибка вызывана аварийным завершением работы PHP-сценария, найти причину можно достаточно быстро. На помощь придёт <code>gdb</code>.</p>
+<p>Первое, что нам нужно, это настроит сбор core-дампов в веб-сервере. Имея файл (предположим, что его имя core), загрузим его в <code>gdb</code>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"># gdb /opt/apache/bin/httpd core</div><div class="line">GNU gdb 6.8</div><div class="line">Copyright (C) 2008 Free Software Foundation, Inc.</div><div class="line">License GPLv3+: GNU GPL version 3 or later &lt;http://gnu.org/licenses/gpl.html&gt;</div><div class="line">This is free software: you are free to change and redistribute it.</div><div class="line">There is NO WARRANTY, to the extent permitted by law.  Type &quot;show copying&quot;</div><div class="line">and &quot;show warranty&quot; for details.</div><div class="line">This GDB was configured as &quot;x86_64-pc-linux-gnu&quot;...</div><div class="line">(no debugging symbols found)</div><div class="line"></div><div class="line">warning: Can&apos;t read pathname for load map: Input/output error.</div><div class="line">Reading symbols from /lib64/libm.so.6...(no debugging symbols found)...done.</div><div class="line">Loaded symbols for /lib/libm.so.6</div><div class="line">Reading symbols from /lib64/libcrypt.so.1...(no debugging symbols found)...done.</div><div class="line">...</div><div class="line"></div><div class="line">Core was generated by `/opt/apache/bin/httpd -f /etc/opt/apache/config/labirintum.conf&apos;.</div><div class="line">Program terminated with signal 11, Segmentation fault.</div><div class="line">[New process 30762]</div><div class="line">#0  0x00007f31f727649b in memcpy () from /lib/libc.so.6</div><div class="line">(gdb)</div></pre></td></tr></table></figure>
+<p>Выводим backtrace командой <code>bt</code>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">#0  0x00007f31f727649b in memcpy () from /lib/libc.so.6</div><div class="line">#1  0x00007f31f6048f94 in zend_prepare_string_for_scanning (str=&lt;value optimized out&gt;, filename=0x7f31f65e55bf &quot;&quot;)</div><div class="line">    at Zend/zend_language_scanner.l:447</div><div class="line">#2  0x00007f31f600342f in zif_token_get_all (ht=&lt;value optimized out&gt;, return_value=0x33cc2d0,</div><div class="line">    return_value_ptr=&lt;value optimized out&gt;, this_ptr=&lt;value optimized out&gt;, return_value_used=&lt;value optimized out&gt;)</div><div class="line">    at /usr/src/php5.3/ext/tokenizer/tokenizer.c:177</div><div class="line">#3  0x00007f31f609de63 in zend_do_fcall_common_helper_SPEC (execute_data=0x7f31e2fc5dc0)</div><div class="line">    at /usr/src/php5.3/Zend/zend_vm_execute.h:320</div><div class="line">#4  0x00007f31f609d023 in execute (op_array=0x33e2c08) at /usr/src/php5.3/Zend/zend_vm_execute.h:107</div><div class="line">#5  0x00007f31f124faa6 in zend_oe () from /usr/local/lib/php/extensions/ZendGuardLoader.so</div><div class="line">#6  0x00007f31f609d98e in zend_do_fcall_common_helper_SPEC (execute_data=0x7f31e2fc58d8)</div><div class="line">    at /usr/src/php5.3/Zend/zend_vm_execute.h:344</div><div class="line">#7  0x00007f31f609d023 in execute (op_array=0x33e5738) at /usr/src/php5.3/Zend/zend_vm_execute.h:107</div><div class="line">#8  0x00007f31f124faa6 in zend_oe () from /usr/local/lib/php/extensions/ZendGuardLoader.so</div><div class="line">#9  0x00007f31f609d98e in zend_do_fcall_common_helper_SPEC (execute_data=0x7f31e2fc3118)</div><div class="line">    at /usr/src/php5.3/Zend/zend_vm_execute.h:344</div><div class="line">#10 0x00007f31f609d023 in execute (op_array=0x1dae780) at /usr/src/php5.3/Zend/zend_vm_execute.h:107</div><div class="line">#11 0x00007f31f124faa6 in zend_oe () from /usr/local/lib/php/extensions/ZendGuardLoader.so</div><div class="line">#12 0x00007f31f609d98e in zend_do_fcall_common_helper_SPEC (execute_data=0x7f31e2fc2f90)</div><div class="line">    at /usr/src/php5.3/Zend/zend_vm_execute.h:344</div><div class="line">#13 0x00007f31f609d023 in execute (op_array=0x25445c0) at /usr/src/php5.3/Zend/zend_vm_execute.h:107</div><div class="line">#14 0x00007f31f124faa6 in zend_oe () from /usr/local/lib/php/extensions/ZendGuardLoader.so</div><div class="line">#15 0x00007f31f609d98e in zend_do_fcall_common_helper_SPEC (execute_data=0x7f31e2fc20a0)</div><div class="line">    at /usr/src/php5.3/Zend/zend_vm_execute.h:344</div><div class="line">...</div></pre></td></tr></table></figure>
+<p>Нам нужно перейти в четвёртый фрейм, соответствующий функции <code>execute()</code>, в которой происходит непосредственное исполнение интерпретатором сценария.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">(gdb) frame 4</div><div class="line">#4  0x00007f31f609d023 in execute (op_array=0x33e2c08) at /usr/src/php5.3/Zend/zend_vm_execute.h:107</div><div class="line">107			if ((ret = EX(opline)-&gt;handler(execute_data TSRMLS_CC)) &gt; 0) &#123;</div></pre></td></tr></table></figure>
+<p>Далее можно узнать имя файла и имя функции, в которой возникает Segmentation Fault.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">(gdb) print op_array.function_name</div><div class="line">$1 = 0x33e37a8 &quot;getPhpChunks&quot;</div><div class="line">(gdb) print op_array.filename</div><div class="line">$2 = 0x33828b8 &quot;/home/j/johndoe/beta.example.com/public_html/bitrix/modules/main/classes/general/php_parser.php&quot;</div><div class="line">(gdb)</div></pre></td></tr></table></figure>
+<p>Итак, теперь мы знаем имя файла, функции, и даже строку, в которой происходит падение интерпретатора.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/apache/">apache</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/php/">php</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/troubleshooting/">troubleshooting</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <nav id="page-nav">
+        <a class="extend prev" rel="prev" href="/">&laquo; Назад</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/">Далее &raquo;</a>
+      </nav>
+    </section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Gennady Aleksandrov&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/ppoffice">PPOffice</a>
+    </div>
+  </div>
+</footer>
+    
+
+<script src="/js/jquery.min.js"></script>
+
+
+
+<script src="/js/script.js"></script>
+  </div>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Puppet Error 400 - Gevial&#39;s Tech Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Что делать, если Puppet не видит модуль.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Puppet Error 400">
+<meta property="og:url" content="https://gevial.github.io/2015/06/17/puppet-error-400/index.html">
+<meta property="og:site_name" content="Gevial's Tech Blog">
+<meta property="og:description" content="Что делать, если Puppet не видит модуль.">
+<meta property="og:updated_time" content="2016-12-21T15:36:56.792Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Puppet Error 400">
+<meta name="twitter:description" content="Что делать, если Puppet не видит модуль.">
+  
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/tags">Tags</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://gevial.github.io"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <section id="main" class="outer"><article id="post-puppet-error-400" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Puppet Error 400
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/06/17/puppet-error-400/" class="article-date">
+  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Сегодня добавил в репозиторий Puppet новый модуль, прописал его в манифесте ноды. На ноде puppet agent не мог получить каталог с сервера - сервер “не видел” модуль.</p>
+<p>В консоли это выглядело так:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">Error: Could not retrieve catalog from remote server:</div><div class="line">Error 400 on SERVER: Puppet::Parser::AST::Resource failed with error ArgumentError:</div><div class="line">Could not find declared class rclocal at</div><div class="line">/var/git/puppet-main/production/manifests/service_nodes/redis.timeweb.net.pp:31</div><div class="line">on node redis1.timeweb.net</div><div class="line">Warning: Not using cache on failed catalog</div><div class="line">Error: Could not retrieve catalog; skipping run</div></pre></td></tr></table></figure>
+<p>Модуль располагался в правильной директории, ошибки не должно было быть. Оказалось, что причиной являлось отсутствие некоторых обязательных полей в <code>metadata.json</code> этого модуля. После добавления всех обязательных полей из <a href="https://docs.puppetlabs.com/puppet/latest/reference/modules_publishing.html#fields-in-metadatajson" target="_blank" rel="external">https://docs.puppetlabs.com/puppet/latest/reference/modules_publishing.html#fields-in-metadatajson</a> ошибка исчезла.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/puppet/">puppet</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/troubleshooting/">troubleshooting</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2015/06/17/dnsmasq/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          dnsmasq и /etc/hosts
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/06/17/python-multiprocessing-sysexit/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">multiprocessing.Process и sys.exit()&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Gennady Aleksandrov&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/ppoffice">PPOffice</a>
+    </div>
+  </div>
+</footer>
+    
+
+<script src="/js/jquery.min.js"></script>
+
+
+
+<script src="/js/script.js"></script>
+  </div>
+</body>
+</html>

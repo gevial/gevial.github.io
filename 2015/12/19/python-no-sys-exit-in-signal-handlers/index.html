@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Настройка логирование в Python - Gevial&#39;s Tech Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Архитектура логирования в Python описана в PEP 282. В состав стандартной библиотеки входит модуль logging.Пример настройки логирования для скрипта. Вывод сообщений уровня DEBUG и выше идёт в файл, выв">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Настройка логирование в Python">
+<meta property="og:url" content="https://gevial.github.io/2015/12/19/python-no-sys-exit-in-signal-handlers/index.html">
+<meta property="og:site_name" content="Gevial's Tech Blog">
+<meta property="og:description" content="Архитектура логирования в Python описана в PEP 282. В состав стандартной библиотеки входит модуль logging.Пример настройки логирования для скрипта. Вывод сообщений уровня DEBUG и выше идёт в файл, выв">
+<meta property="og:updated_time" content="2016-12-21T15:28:15.780Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Настройка логирование в Python">
+<meta name="twitter:description" content="Архитектура логирования в Python описана в PEP 282. В состав стандартной библиотеки входит модуль logging.Пример настройки логирования для скрипта. Вывод сообщений уровня DEBUG и выше идёт в файл, выв">
+  
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/tags">Tags</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://gevial.github.io"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <section id="main" class="outer"><article id="post-python-no-sys-exit-in-signal-handlers" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Настройка логирование в Python
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/12/19/python-no-sys-exit-in-signal-handlers/" class="article-date">
+  <time datetime="2015-12-19T09:00:00.000Z" itemprop="datePublished">2015-12-19</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Архитектура логирования в Python описана в <a href="https://www.python.org/dev/peps/pep-0282/" target="_blank" rel="external">PEP 282</a>. В состав стандартной библиотеки входит модуль <code>logging</code>.<br>Пример настройки логирования для скрипта. Вывод сообщений уровня DEBUG и выше идёт в файл, вывод сообщений уровня INFO и выше - на консоль.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> logging</div><div class="line"></div><div class="line">logger = logging.getLogger(__name__)</div><div class="line">logger.setLevel(logging.DEBUG)</div><div class="line"></div><div class="line">console = logging.StreamHandler()</div><div class="line">console.setLevel(logging.INFO)</div><div class="line">console.setFormatter(logging.Formatter(<span class="string">'[%(levelname)s] %(message)s'</span>))</div><div class="line">logger.addHandler(console)</div><div class="line"></div><div class="line">logfile = logging.FileHandler(LOGFILE)</div><div class="line">logfile.setLevel(logging.DEBUG)</div><div class="line">logfile.setFormatter(logging.Formatter(<span class="string">'%(asctime)s [%(levelname)s] %(message)s'</span>,</div><div class="line">                                       datefmt=<span class="string">'[%d.%m.%Y - %H:%M:%S]'</span>))</div><div class="line">logger.addHandler(logfile)</div></pre></td></tr></table></figure>
+<p>Начиная с Python 2.7 настройки <code>logging</code> можно описать в словаре. Это намного более удобный способ, хоть и менее гибкий:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> logging</div><div class="line"><span class="keyword">from</span> logging.config <span class="keyword">import</span> dictConfig</div><div class="line"></div><div class="line">logging_config = dict(</div><div class="line">    version=<span class="number">1</span>,</div><div class="line">    formatters=&#123;</div><div class="line">        <span class="string">'console'</span>: &#123;</div><div class="line">            <span class="string">'format'</span>: <span class="string">'[%(levelname)s] %(message)s'</span></div><div class="line">        &#125;,</div><div class="line">        <span class="string">'file'</span>: &#123;</div><div class="line">            <span class="string">'format'</span>: <span class="string">'%(asctime)s [%(levelname)s] %(message)s'</span>,</div><div class="line">            <span class="string">'datefmt'</span>: <span class="string">'[%d.%m.%Y - %H:%M:%S]'</span></div><div class="line">        &#125;</div><div class="line">    &#125;,</div><div class="line">    handlers=&#123;</div><div class="line">        <span class="string">'console'</span>: &#123;</div><div class="line">            <span class="string">'class'</span>: <span class="string">'logging.StreamHandler'</span>,</div><div class="line">            <span class="string">'formatter'</span>: <span class="string">'console'</span>,</div><div class="line">            <span class="string">'level'</span>: logging.INFO</div><div class="line">        &#125;,</div><div class="line">        <span class="string">'file'</span>: &#123;</div><div class="line">            <span class="string">'class'</span>: <span class="string">'logging.FileHandler'</span>,</div><div class="line">            <span class="string">'formatter'</span>: <span class="string">'file'</span>,</div><div class="line">            <span class="string">'filename'</span>: logfile,</div><div class="line">            <span class="string">'level'</span>: logging.DEBUG</div><div class="line">        &#125;</div><div class="line">    &#125;,</div><div class="line">    loggers=&#123;</div><div class="line">        <span class="string">'root'</span>: &#123;<span class="string">'handlers'</span>: [<span class="string">'console'</span>, <span class="string">'file'</span>], <span class="string">'level'</span>: logging.DEBUG&#125;</div><div class="line">    &#125;</div><div class="line">)</div><div class="line"></div><div class="line">dictConfig(logging_config)</div><div class="line">logger = logging.getLogger(<span class="string">'root'</span>)</div></pre></td></tr></table></figure>
+<p>Более подробно о логировании в Python написано тут: <a href="http://docs.python-guide.org/en/latest/writing/logging/" target="_blank" rel="external">Hitchhiker’s Guide to Python</a></p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/01/12/tpc-h/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          TPC-H
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/10/12/puppet-cert-error-header-too-long/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Ошибка puppet cert - header too long&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Gennady Aleksandrov&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/ppoffice">PPOffice</a>
+    </div>
+  </div>
+</footer>
+    
+
+<script src="/js/jquery.min.js"></script>
+
+
+
+<script src="/js/script.js"></script>
+  </div>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Из книги &quot;Web Operations&quot; - Postmortem (RCA) - Gevial&#39;s Tech Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Продолжаю постить выдержки из книги “Web Operations: Keeping the Data on Time”.
+В этом посте речь пойдёт о проведении Postmortem, или Root-Cause Analysis (RCA). По сути, это - анализ произошедшей авар">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Из книги "Web Operations" - Postmortem (RCA)">
+<meta property="og:url" content="https://gevial.github.io/2016/09/27/web-operations-postmortem/index.html">
+<meta property="og:site_name" content="Gevial's Tech Blog">
+<meta property="og:description" content="Продолжаю постить выдержки из книги “Web Operations: Keeping the Data on Time”.
+В этом посте речь пойдёт о проведении Postmortem, или Root-Cause Analysis (RCA). По сути, это - анализ произошедшей авар">
+<meta property="og:updated_time" content="2016-12-21T15:24:50.555Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Из книги "Web Operations" - Postmortem (RCA)">
+<meta name="twitter:description" content="Продолжаю постить выдержки из книги “Web Operations: Keeping the Data on Time”.
+В этом посте речь пойдёт о проведении Postmortem, или Root-Cause Analysis (RCA). По сути, это - анализ произошедшей авар">
+  
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/tags">Tags</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://gevial.github.io"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <section id="main" class="outer"><article id="post-web-operations-postmortem" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Из книги &quot;Web Operations&quot; - Postmortem (RCA)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/09/27/web-operations-postmortem/" class="article-date">
+  <time datetime="2016-09-27T09:00:00.000Z" itemprop="datePublished">2016-09-27</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Продолжаю постить выдержки из книги “Web Operations: Keeping the Data on Time”.</p>
+<p>В этом посте речь пойдёт о проведении Postmortem, или Root-Cause Analysis (RCA). По сути, это - анализ произошедшей аварии. В книге действительно хорошо всё описано, поэтому выдержки приведу as is.</p>
+<h3 id="What-Is-a-Postmortem"><a href="#What-Is-a-Postmortem" class="headerlink" title="What Is a Postmortem?"></a>What Is a Postmortem?</h3><p>A postmortem needs to cover these essentials at a minimum:</p>
+<ol>
+<li>A description of the incident</li>
+<li>A description of the root cause</li>
+<li>How the incident was stabilized and/or fixed</li>
+<li>A timeline of actions taken to resolve the incident</li>
+<li>How the incident affected customers</li>
+<li>Remediations or corrective actions</li>
+</ol>
+<p>The first five items make sure everyone involved has a common understanding of the facts. Many incidents reoccur because people do not understand what really happened and how the problem was fixed. Different teams and different layers of management arrive at the postmortem with different understandings of what happened. During a postmortem, everyone with significant involvement in the incident should be present at the same time to document a common description of the facts of the incident. Without an accurate account of the facts, it will be impossible to determine and prioritize the corrective actions that are the biggest benefit of a postmortem.</p>
+<p>Determining the root cause should go without saying, but I can’t tell you the number of times I have been in a postmortem where participants spent tons of time debating each possible remediation item or the number of customers affected, only to find that they had wasted their time because they didn’t have the root cause right.</p>
+<p>The same goes for the stabilizing steps. Often during the chaos of a major incident, multiple people attempt multiple fixes. Determine the true root cause and the step that brought it to stable before moving on. Note that an incident might be stable without actually being fixed. You can eliminate customer impact without fixing an issue like when you reboot servers to address a memory leak. Although it will be stable for a short period, the servers are just going to run out of memory again if the root cause is not addressed.</p>
+<p>A timeline will be important for determining how the incident could have been fixed more quickly. Again, multiple people may have a different understanding of the time- line. Allow each participant to contribute the items they are aware of before moving to remediation items around decreasing Time to Resolve (TTR). Make sure to answer the following questions:</p>
+<ul>
+<li>When did the incident begin to affect customers? (Note: Not all incidents affect customers.)</li>
+<li>When did someone in the organization first become aware that there was a problem?</li>
+<li>How did this person become aware? Through monitoring? The Customer Care team? A personal report?</li>
+<li>How long did it take for the knowledge of the incident to get to the person who ultimately resolved it?</li>
+<li>What would have allowed someone to diagnose the fault earlier? (For example, better monitoring, more comprehensive troubleshooting guides, etc.)</li>
+<li>Did the stabilizing steps take a long time to implement? Could they be automated or simplified to speed them up?</li>
+</ul>
+<p>Reducing the TTR of an incident is every bit as important as eliminating incidents themselves. Ultimately, total customer impact minutes (TTR × Number of Customers Affected) is what counts. Some outages may be unavoidable, but if you can ensure quick recovery, your customers will benefit.</p>
+<p>After determining the customer impact, you may want to assign a severity level to the incident. You can develop your own severity categories, or use this example:</p>
+<p>Severity 1: site outages affecting a significant number of customers</p>
+<p>Severity 2: site degradation, performance issues, or broken features which are difficult to work around</p>
+<p>Severity 3: other service issues that have minimal customer impact or easy workarounds</p>
+<p>Assigning a severity level will help you to prioritize completion of your remediation items and is also useful during the triage stage of an active incident. You may have already assigned a severity level while attempting to resolve the issue so that you could determine whether it is a five-alarm fire requiring all hands on deck or a minor blip.</p>
+<h3 id="When-to-Conduct-a-Postmortem"><a href="#When-to-Conduct-a-Postmortem" class="headerlink" title="When to Conduct a Postmortem."></a>When to Conduct a Postmortem.</h3><p>You should conduct a postmortem after every major outage that affects customers, preferably within 24 hours. This is a little more difficult than it sounds. Teams are usually busy. They are especially busy right after an incident occurs, because they probably spent unplanned cycles on firefighting. Some of the firefighters may have been up all night resolving the incident. Once an incident is stable, people have a tendency to get back to whatever they were doing before they were interrupted to try to make up for lost time.</p>
+<p>The important thing to note is that until a postmortem is conducted and corrective actions are identified, your site is at risk of repeating the incident. If you can’t conduct the postmortem within 24 hours, don’t wait any longer than a week. After a week, incident participants will start to forget key details; you may be missing key logfiles; and of course, you remain at risk for reoccurrence.</p>
+<p>Although it’s good to complete a postmortem within 24 hours, you should not conduct a postmortem while the incident is still open. Trying to determine preventive actions or assign blame is a distraction that teams don’t need while they are attempting to stabi- lize the service. Remember, this process is ultimately intended to benefit your customers, and the process should never directly get in the way of restoring service to them.</p>
+<h3 id="Postmortem-Follow-Up"><a href="#Postmortem-Follow-Up" class="headerlink" title="Postmortem Follow-Up"></a>Postmortem Follow-Up</h3><p>…</p>
+<p>After many years of postmortems, I’ve found a few areas that you will likely want to consider for corrective actions. I call this <em>site operability</em>.</p>
+<p><em>Eliminate single points of failure</em></p>
+<p>Hardware can and will fail. Utilize redundancy to protect yourself. Don’t let hardware failure be a cause of a customer-impacting incident.</p>
+<p><em>Capacity planning</em></p>
+<p>Understand your site and its future capacity needs. Base your capacity planning on total utilization of primary constraints such as CPU, memory, I/O, and storage, not on secondary constraints such as number of users. Provision in the areas you need, before you need them.</p>
+<p><em>Monitoring</em></p>
+<p>This is essential for detecting and diagnosing incidents. Other chapters in this book provide great recommendations for monitoring techniques.</p>
+<p><em>Release management</em></p>
+<p>Change is historically the most likely cause of incidents. Make sure your release process has the right quality controls in place. Consider implementing concepts such as automated testing, staging environments, limited production deployments, dark launches (rolling out code without activating functionality for customers until the code is proven stable), and the ability to roll back immediately.</p>
+<p><em>Operational architecture reviews</em></p>
+<p>Hold an architecture review that is entirely focused on how the new release or product will perform in the production environment before rolling it out to customers. Consider maintainability, failure scenarios, and incident response as well as architectural reliability and scalability.</p>
+<p><em>Configuration management</em></p>
+<p>As your systems grow, production configurations become increasingly ­complicated. The inability to understand the implications of changes to production configurations often leads to incidents attributed to human error. Having a configuration management system that is straightforward and logical will help engineers avoid unintended issues. Read Chapter 5 in this book for more recommendations.</p>
+<p><em>On-call and escalation process</em></p>
+<p>Identify the issue and get it to the person who can resolve it as quickly as possible.</p>
+<p><em>Unstable components</em></p>
+<p>Identify and fix software components with a history of crashing and unintended behavior. Make it a priority even when there is an easy manual fix. Those manual fixes add up to become a drag on customer experience and your ability to scale and be effective.</p>
+<p>By proactively ensuring that your site is operable, you will be able to avoid many painful postmortems before they are even necessary.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/book/">book</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/10/28/web-operations-data-assets/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Из книги &quot;Web Operations&quot; - Data Assets
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/07/03/web-operations-sla/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Из книги &quot;Web Operations&quot; - Составление SLA&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Gennady Aleksandrov&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/ppoffice">PPOffice</a>
+    </div>
+  </div>
+</footer>
+    
+
+<script src="/js/jquery.min.js"></script>
+
+
+
+<script src="/js/script.js"></script>
+  </div>
+</body>
+</html>

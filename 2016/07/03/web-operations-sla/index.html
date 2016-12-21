@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Из книги &quot;Web Operations&quot; - Составление SLA - Gevial&#39;s Tech Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Прочёл превосходную книгу - “Web Operations: Keeping the Data on Time”. Авторы: John Allspaw, Jesse Robbins. ISBN-13: 978-1449377441.
+Несмотря на то, что книга вышла в 2010-ом, информация в ней остаёт">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Из книги "Web Operations" - Составление SLA">
+<meta property="og:url" content="https://gevial.github.io/2016/07/03/web-operations-sla/index.html">
+<meta property="og:site_name" content="Gevial's Tech Blog">
+<meta property="og:description" content="Прочёл превосходную книгу - “Web Operations: Keeping the Data on Time”. Авторы: John Allspaw, Jesse Robbins. ISBN-13: 978-1449377441.
+Несмотря на то, что книга вышла в 2010-ом, информация в ней остаёт">
+<meta property="og:updated_time" content="2016-12-21T15:25:05.860Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Из книги "Web Operations" - Составление SLA">
+<meta name="twitter:description" content="Прочёл превосходную книгу - “Web Operations: Keeping the Data on Time”. Авторы: John Allspaw, Jesse Robbins. ISBN-13: 978-1449377441.
+Несмотря на то, что книга вышла в 2010-ом, информация в ней остаёт">
+  
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/tags">Tags</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://gevial.github.io"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <section id="main" class="outer"><article id="post-web-operations-sla" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Из книги &quot;Web Operations&quot; - Составление SLA
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/07/03/web-operations-sla/" class="article-date">
+  <time datetime="2016-07-03T09:00:00.000Z" itemprop="datePublished">2016-07-03</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Прочёл превосходную книгу - “Web Operations: Keeping the Data on Time”. Авторы: John Allspaw, Jesse Robbins. ISBN-13: 978-1449377441.</p>
+<p>Несмотря на то, что книга вышла в 2010-ом, информация в ней остаётся актуальной для многих компаний.</p>
+<p>Также в книге изложены организационные принципы, которые вряд ли устареют в ближайшем будущем.</p>
+<p>Хочу особо выделить некоторые моменты из книги, раскидаю по отдельным постам.</p>
+<h3 id="Составление-SLA"><a href="#Составление-SLA" class="headerlink" title="Составление SLA"></a>Составление SLA</h3><p>SLA (Service Level Agreement) - формальный договор между заказчиком услуги и её поставщиком, содержащий описание услуги, права и обязанности сторон, а также согласованный уровень качества предоставления данной услуги.</p>
+<blockquote>
+<p>User-facing SLAs have several components (see Table 11-2). You need to be specific about these so that there’s no doubt whether an SLA was violated when someone claims that a problem occurred.</p>
+</blockquote>
+<p>Привожу таблицу 11-2.</p>
+<table>
+<thead>
+<tr>
+<th>SLA component</th>
+<th>What it means</th>
+<th>How it’s expressed</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Task being measured</td>
+<td>The thing being tested — the business process or function itself</td>
+<td>This is usually expressed as a name or description of the test; avoid using just the url or page name as it makes the test harder to read.</td>
+<td>“Updating  a contact  record”</td>
+</tr>
+<tr>
+<td>Metric being  calculated</td>
+<td>The element of latency that’s being computed. If you can’t control it, it shouldn’t be in your SLA.</td>
+<td>This is a measurement  that is specific and can be reproduced across systems. You should know, for example, that “page load time” means “from the first DNS lookup to the browser’s <code>onLoad</code> event.”</td>
+<td>“Host latency”</td>
+</tr>
+<tr>
+<td>Calculation</td>
+<td>The math used to generate the number</td>
+<td>Unfortunately, this is usually an average. Don’t do this. Averages suck. Insist on a percentile (or  at the very least a trimmed  mean), and a single bad measurement won’t ruin an otherwise good month.</td>
+<td>“95th percentile”</td>
+</tr>
+<tr>
+<td>Valid times</td>
+<td>The times and days when the metric is valid. If you don’t include this, you won’t have room for maintenance. Some business processes matter at only certain times.</td>
+<td>This is expressed as hours, days, and time zones.</td>
+<td>“8:00 a.m. to 9:00  p.m., pST, Monday to Friday”</td>
+</tr>
+<tr>
+<td>Test conditions (or filters)</td>
+<td>The circumstances of the test or the visits included in the report: - For synthetic monitoring, this may be an agreed- upon external service provider. - For RUM, it may be all visits from a particular client, location, IP range, or some other segment.</td>
+<td>This is expressed as operating systems, network locations, browsers, user accounts, source IP ranges, and so on.</td>
+<td>“Domestic United States on a PC running IE7”</td>
+</tr>
+<tr>
+<td>Time span</td>
+<td>The time over which the calculation is performed</td>
+<td>This is expressed as a time range, often a day, week, or month.</td>
+<td>“In a 30-day period”</td>
+</tr>
+</tbody>
+</table>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/book/">book</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/09/27/web-operations-postmortem/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Из книги &quot;Web Operations&quot; - Postmortem (RCA)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/07/01/work-env/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Настройка рабочего окружения&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Gennady Aleksandrov&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/ppoffice">PPOffice</a>
+    </div>
+  </div>
+</footer>
+    
+
+<script src="/js/jquery.min.js"></script>
+
+
+
+<script src="/js/script.js"></script>
+  </div>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Локфайлы в Python - Gevial&#39;s Tech Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Появилась необходимость исключить параллельный запуск скрипта на Python. Вспомнил про пакет lockfile, однако выяснилось, что он находится в статусе deprecated.
+На странице проекта есть рекомендация ис">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Локфайлы в Python">
+<meta property="og:url" content="https://gevial.github.io/2016/12/11/python-lockfile/index.html">
+<meta property="og:site_name" content="Gevial's Tech Blog">
+<meta property="og:description" content="Появилась необходимость исключить параллельный запуск скрипта на Python. Вспомнил про пакет lockfile, однако выяснилось, что он находится в статусе deprecated.
+На странице проекта есть рекомендация ис">
+<meta property="og:updated_time" content="2016-12-21T15:13:21.495Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Локфайлы в Python">
+<meta name="twitter:description" content="Появилась необходимость исключить параллельный запуск скрипта на Python. Вспомнил про пакет lockfile, однако выяснилось, что он находится в статусе deprecated.
+На странице проекта есть рекомендация ис">
+  
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/tags">Tags</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://gevial.github.io"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <section id="main" class="outer"><article id="post-python-lockfile" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Локфайлы в Python
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/12/11/python-lockfile/" class="article-date">
+  <time datetime="2016-12-11T12:07:33.000Z" itemprop="datePublished">2016-12-11</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Появилась необходимость исключить параллельный запуск скрипта на Python. Вспомнил про пакет <code>lockfile</code>, однако выяснилось, что он находится в статусе deprecated.</p>
+<p>На странице проекта есть рекомендация использовать пакет <a href="https://pypi.python.org/pypi/fasteners" target="_blank" rel="external">fasteners</a>. Он более сложный, направлен на синхронизацию между потоками или процессами. Однократный запуск с его помощью реализовать легко. При запуск пытаемся лочить файл. Не удалось - выходим.</p>
+<p>Пример:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">lock = fasteners.process_lock.InterProcessLock(LOCKFILE)</div><div class="line"><span class="keyword">if</span> <span class="keyword">not</span> lock.acquire(blocking=<span class="keyword">False</span>):</div><div class="line">    hist_logger.error(</div><div class="line">        <span class="string">'Unable to acquire lock on &#123;&#125;. Maybe another instance is running.'</span></div><div class="line">        .format(LOCKFILE)</div><div class="line">    )</div><div class="line">    sys.exit(os.EX_TEMPFAIL)</div></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ipc/">ipc</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/programming/">programming</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2016/12/10/hexo/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Hexo&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Gennady Aleksandrov&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/ppoffice">PPOffice</a>
+    </div>
+  </div>
+</footer>
+    
+
+<script src="/js/jquery.min.js"></script>
+
+
+
+<script src="/js/script.js"></script>
+  </div>
+</body>
+</html>
