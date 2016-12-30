@@ -43,6 +43,106 @@
   </div>
 </header>
     <section id="main" class="outer">
+      <article id="post-change-ext-journal-device-ext4" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/02/10/change-ext-journal-device-ext4/">Смена устройства, хранящего внешний журнал ext4</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/02/10/change-ext-journal-device-ext4/" class="article-date">
+  <time datetime="2016-02-10T09:00:00.000Z" itemprop="datePublished">2016-02-10</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Недавно столкнулся со следующей ситуацией.</p>
+<p>Есть файловая система ext4 на 22 Тб. Настроили для неё размещение журнала на отдельной SSD, указали опцию монтирования <code>journal_async_commit</code>.<br>Спустя сутки ФС внезапно стала read-only. Оказалось, диск, на котором размещался журнал, был извлечён из системы с помощью <code>MegaCli</code>.<br>Отмонтировать ФС не удавалось, umount “висел”. Были вынуждены перезагрузить сервер через reset.</p>
+<p>После загрузки сменились major и minor номера всех блочных устройств, они стали такими:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"># cat /proc/partitions</div><div class="line">major minor  #blocks  name</div><div class="line"></div><div class="line">   8       16  233897984 sdb</div><div class="line">   8       17  233896960 sdb1</div><div class="line">   8       32  175276032 sdc</div><div class="line">   8        0 23437770752 sda</div><div class="line">   8        1 23437768704 sda1</div><div class="line">   8       48   97685784 sdd</div><div class="line">   8       49   97684480 sdd1</div><div class="line">#</div></pre></td></tr></table></figure>
+<p>ФС не монтировалась, несмотря на то, что при подключении внешнего журнала был указан UUID. Примонтировали ФС только со сменой устройства журнала:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mount -t ext4 -o journal_dev=$(stat -c &quot;0x%t%T&quot; /dev/sdc) /dev/sda1 /var/spool/maildir</div></pre></td></tr></table></figure>
+<p>Трудность была в том, что в мануале <code>mount</code> не указано, в каком формате необходимо передавать аргумент опции <code>journal_dev</code>. Информацию я нашёл лишь где-то в списках рассылки.</p>
+<p>Стоит отметить, что в современных версиях <code>mount</code> есть опция <code>journal_path</code>, которая позволяет указать просто путь к устройству. Но в Ubuntu 12.04 этой опции в <code>mount</code> нет.</p>
+<p>После успешного монтирования мы опять выполнили <code>umount</code>, чтобы “прогнать” <code>e2fsck</code>. После ФС успешно примонтировалась просто по <code>mount -a</code>.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/storage/">storage</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-time_wait-sockets" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  <h1 itemprop="name">
+    <a class="article-title" href="http://vincent.bernat.im/en/blog/2014-tcp-time-wait-state-linux.html" target="_blank" itemprop="url">Всё о сокетах в состоянии TIME_WAIT</a>
+  </h1>
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/01/21/time_wait-sockets/" class="article-date">
+  <time datetime="2016-01-21T09:00:00.000Z" itemprop="datePublished">2016-01-21</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Превосходная статья о сокетах, находящихся в состоянии <code>TIME_WAIT</code>.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/network/">network</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
       <article id="post-lsi-raid-controller-cache-policies" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -453,124 +553,6 @@
       <footer class="article-footer">
         
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/puppet/">puppet</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/troubleshooting/">troubleshooting</a></li></ul>
-
-      </footer>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-    
-      <article id="post-local-elk-fast-start" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/07/14/local-elk-fast-start/">Запуск ELK stack локально для быстрого анализа лог-файлов</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      <a href="/2015/07/14/local-elk-fast-start/" class="article-date">
-  <time datetime="2015-07-13T21:00:00.000Z" itemprop="datePublished">2015-07-14</time>
-</a>
-      
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Столкнулся с необходимостью проанализировать логи Apache хостингового сервера. Период - около недели. Логов много - почти 2 миллиона строк.</p>
-<p>Самое удобное решение - развернуть на локальной машине ELK stack (Elasticsearch, Logstash, Kibana) и запихнуть туда логи. Делается это очень быстро.</p>
-<p>1) Скачиваем ELK с <a href="http://elastic.co" target="_blank" rel="external">elastic.co</a> (версия Elasticsearch должна быть та, которая совпадает с Logstash. В моём случае это 1.5.2 - последнняя версия Logstash)</p>
-<p>2)  Пишем конфиг для Logstash. Вот мой, для логов Apache:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">input &#123;</div><div class="line">    file &#123;</div><div class="line">        path =&gt; [ &quot;/home/gena/Desktop/galileo.log&quot; ]</div><div class="line">        sincedb_path =&gt; &quot;/dev/null&quot;</div><div class="line">        start_position =&gt; &quot;beginning&quot;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">filter &#123;</div><div class="line">     grok &#123;</div><div class="line">         match =&gt; &#123; &quot;message&quot; =&gt; &quot;apache_access: %&#123;IPORHOST:http_host&#125; %&#123;DATA:remote_addr&#125; .* \[%&#123;HTTPDATE:time_local&#125;\] \&quot;(?&lt;request_method&gt;[A-Z]+) %&#123;DATA:request&#125; HTTP\/[01]\.[0-9]\&quot; (?&lt;status&gt;\d\d\d) (?&lt;body_bytes_sent&gt;.*) %&#123;QS:http_referer&#125; %&#123;QS:http_user_agent&#125;&quot; &#125;</div><div class="line">     &#125;</div><div class="line">     date &#123;</div><div class="line">         match =&gt; [ &quot;time_local&quot;, &quot;dd/MMM/YYYY:HH:mm:ss Z&quot; ]</div><div class="line">     &#125;</div><div class="line">&#125;</div><div class="line">output &#123;</div><div class="line">    elasticsearch &#123;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>Следует обратить внимание на опции <code>sincedb_path</code> и <code>start_position</code>. Если их не указать, можно впасть в долгие попытки понять, почему же не работает ввод из файла (если, к примеру, были ошибки в конфигурации и пришлось запускать Logstash несколько раз).</p>
-<p>3) Запускаем Elastisearch и Logstash:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ logstash-1.5.2/bin/logstash -f apache.conf</div><div class="line">$ elasticsearch-1.5.2/bin/elasticsearch</div></pre></td></tr></table></figure>
-<p>4) Логи уже потекли в Elasticsearch. Теперь надо создать индекс <code>.kibana</code> для служебных нужд Kibana и включить для него Dynamic Mapping.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ curl -XPUT localhost:9200/.kibana -d &apos;&#123; &quot;index.mapper.dynamic&quot;: true &#125;&apos;</div></pre></td></tr></table></figure></p>
-<p>5) Запускаем Kibana</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kibana-4.1.1-linux-x64/bin/kibana</div></pre></td></tr></table></figure>
-<p>6) Открываем <a href="http://localhost:5601" target="_blank" rel="external">http://localhost:5601</a> (Kibana) и настраиваем шаблон для отображения индексов.</p>
-<p>7) …</p>
-<p>8) PROFIT!!!</p>
-<p>Теперь можно работать с логами по-человечески.</p>
-
-      
-    </div>
-    
-    
-      <footer class="article-footer">
-        
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/apache/">apache</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/elk/">elk</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/logs/">logs</a></li></ul>
-
-      </footer>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-    
-      <article id="post-debug-502-php" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/06/19/debug-502-php/">Отладка ошибки 502, вызываемой падением PHP-сценария</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      <a href="/2015/06/19/debug-502-php/" class="article-date">
-  <time datetime="2015-06-18T21:00:00.000Z" itemprop="datePublished">2015-06-19</time>
-</a>
-      
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Ошибка 502 является, пожалуй, наиболее сложной для отладки.</p>
-<p>Однако, если ошибка вызывана аварийным завершением работы PHP-сценария, найти причину можно достаточно быстро. На помощь придёт <code>gdb</code>.</p>
-<p>Первое, что нам нужно, это настроит сбор core-дампов в веб-сервере. Имея файл (предположим, что его имя core), загрузим его в <code>gdb</code>:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"># gdb /opt/apache/bin/httpd core</div><div class="line">GNU gdb 6.8</div><div class="line">Copyright (C) 2008 Free Software Foundation, Inc.</div><div class="line">License GPLv3+: GNU GPL version 3 or later &lt;http://gnu.org/licenses/gpl.html&gt;</div><div class="line">This is free software: you are free to change and redistribute it.</div><div class="line">There is NO WARRANTY, to the extent permitted by law.  Type &quot;show copying&quot;</div><div class="line">and &quot;show warranty&quot; for details.</div><div class="line">This GDB was configured as &quot;x86_64-pc-linux-gnu&quot;...</div><div class="line">(no debugging symbols found)</div><div class="line"></div><div class="line">warning: Can&apos;t read pathname for load map: Input/output error.</div><div class="line">Reading symbols from /lib64/libm.so.6...(no debugging symbols found)...done.</div><div class="line">Loaded symbols for /lib/libm.so.6</div><div class="line">Reading symbols from /lib64/libcrypt.so.1...(no debugging symbols found)...done.</div><div class="line">...</div><div class="line"></div><div class="line">Core was generated by `/opt/apache/bin/httpd -f /etc/opt/apache/config/labirintum.conf&apos;.</div><div class="line">Program terminated with signal 11, Segmentation fault.</div><div class="line">[New process 30762]</div><div class="line">#0  0x00007f31f727649b in memcpy () from /lib/libc.so.6</div><div class="line">(gdb)</div></pre></td></tr></table></figure>
-<p>Выводим backtrace командой <code>bt</code>:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">#0  0x00007f31f727649b in memcpy () from /lib/libc.so.6</div><div class="line">#1  0x00007f31f6048f94 in zend_prepare_string_for_scanning (str=&lt;value optimized out&gt;, filename=0x7f31f65e55bf &quot;&quot;)</div><div class="line">    at Zend/zend_language_scanner.l:447</div><div class="line">#2  0x00007f31f600342f in zif_token_get_all (ht=&lt;value optimized out&gt;, return_value=0x33cc2d0,</div><div class="line">    return_value_ptr=&lt;value optimized out&gt;, this_ptr=&lt;value optimized out&gt;, return_value_used=&lt;value optimized out&gt;)</div><div class="line">    at /usr/src/php5.3/ext/tokenizer/tokenizer.c:177</div><div class="line">#3  0x00007f31f609de63 in zend_do_fcall_common_helper_SPEC (execute_data=0x7f31e2fc5dc0)</div><div class="line">    at /usr/src/php5.3/Zend/zend_vm_execute.h:320</div><div class="line">#4  0x00007f31f609d023 in execute (op_array=0x33e2c08) at /usr/src/php5.3/Zend/zend_vm_execute.h:107</div><div class="line">#5  0x00007f31f124faa6 in zend_oe () from /usr/local/lib/php/extensions/ZendGuardLoader.so</div><div class="line">#6  0x00007f31f609d98e in zend_do_fcall_common_helper_SPEC (execute_data=0x7f31e2fc58d8)</div><div class="line">    at /usr/src/php5.3/Zend/zend_vm_execute.h:344</div><div class="line">#7  0x00007f31f609d023 in execute (op_array=0x33e5738) at /usr/src/php5.3/Zend/zend_vm_execute.h:107</div><div class="line">#8  0x00007f31f124faa6 in zend_oe () from /usr/local/lib/php/extensions/ZendGuardLoader.so</div><div class="line">#9  0x00007f31f609d98e in zend_do_fcall_common_helper_SPEC (execute_data=0x7f31e2fc3118)</div><div class="line">    at /usr/src/php5.3/Zend/zend_vm_execute.h:344</div><div class="line">#10 0x00007f31f609d023 in execute (op_array=0x1dae780) at /usr/src/php5.3/Zend/zend_vm_execute.h:107</div><div class="line">#11 0x00007f31f124faa6 in zend_oe () from /usr/local/lib/php/extensions/ZendGuardLoader.so</div><div class="line">#12 0x00007f31f609d98e in zend_do_fcall_common_helper_SPEC (execute_data=0x7f31e2fc2f90)</div><div class="line">    at /usr/src/php5.3/Zend/zend_vm_execute.h:344</div><div class="line">#13 0x00007f31f609d023 in execute (op_array=0x25445c0) at /usr/src/php5.3/Zend/zend_vm_execute.h:107</div><div class="line">#14 0x00007f31f124faa6 in zend_oe () from /usr/local/lib/php/extensions/ZendGuardLoader.so</div><div class="line">#15 0x00007f31f609d98e in zend_do_fcall_common_helper_SPEC (execute_data=0x7f31e2fc20a0)</div><div class="line">    at /usr/src/php5.3/Zend/zend_vm_execute.h:344</div><div class="line">...</div></pre></td></tr></table></figure>
-<p>Нам нужно перейти в четвёртый фрейм, соответствующий функции <code>execute()</code>, в которой происходит непосредственное исполнение интерпретатором сценария.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">(gdb) frame 4</div><div class="line">#4  0x00007f31f609d023 in execute (op_array=0x33e2c08) at /usr/src/php5.3/Zend/zend_vm_execute.h:107</div><div class="line">107			if ((ret = EX(opline)-&gt;handler(execute_data TSRMLS_CC)) &gt; 0) &#123;</div></pre></td></tr></table></figure>
-<p>Далее можно узнать имя файла и имя функции, в которой возникает Segmentation Fault.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">(gdb) print op_array.function_name</div><div class="line">$1 = 0x33e37a8 &quot;getPhpChunks&quot;</div><div class="line">(gdb) print op_array.filename</div><div class="line">$2 = 0x33828b8 &quot;/home/j/johndoe/beta.example.com/public_html/bitrix/modules/main/classes/general/php_parser.php&quot;</div><div class="line">(gdb)</div></pre></td></tr></table></figure>
-<p>Итак, теперь мы знаем имя файла, функции, и даже строку, в которой происходит падение интерпретатора.</p>
-
-      
-    </div>
-    
-    
-      <footer class="article-footer">
-        
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/apache/">apache</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/php/">php</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/troubleshooting/">troubleshooting</a></li></ul>
 
       </footer>
     

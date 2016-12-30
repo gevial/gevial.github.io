@@ -43,6 +43,125 @@
   </div>
 </header>
     <section id="main" class="outer">
+      <article id="post-robustness-principle" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  <h1 itemprop="name">
+    <a class="article-title" href="https://en.wikipedia.org/wiki/Robustness_principle" target="_blank" itemprop="url">Правило Джона Постела</a>
+  </h1>
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/12/30/robustness-principle/" class="article-date">
+  <time datetime="2016-12-30T14:00:27.000Z" itemprop="datePublished">2016-12-30</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>Будь либерален к тому, что принимаешь, и требователен к тому, что отсылаешь</p>
+</blockquote>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/development/">development</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-soa-principles" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/12/24/soa-principles/">10 принципов построения инфраструктурных сервисов</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2016/12/24/soa-principles/" class="article-date">
+  <time datetime="2016-12-24T19:17:38.000Z" itemprop="datePublished">2016-12-24</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Продолжаю постить выдержки из книги <strong>“Web Operations”</strong> (ISBN 978-1-449-37744-1). На этот раз речь пойдёт о требованиях к инфраструктурным сервисам (Service-Oriented Architecture).</p>
+<p>In our exploration of service-oriented architecture and configuration management, we identified 10 core principles of a good infrastructure service.</p>
+<h4 id="It-should-be-modular"><a href="#It-should-be-modular" class="headerlink" title="It should be modular."></a>It should be modular.</h4><p><em>“Do one thing, and do it well.”</em></p>
+<p>In an SOA, each service is small — it does one thing, and allows other services to consume it. The complexity budget for any given service is tiny—the cost of integrating services is pushed up the stack to the application developer. By focusing each service in a narrow band, the services become easier to manage, develop, and test.</p>
+<p>The same is true when thinking about infrastructure services. By keeping the total space in which a given service operates small, you reduce its own complexity, and make it easier for others to reason about your behavior.</p>
+<h4 id="It-should-be-cooperative"><a href="#It-should-be-cooperative" class="headerlink" title="It should be cooperative."></a>It should be cooperative.</h4><p><em>“It takes a village.”</em></p>
+<p>When you build primitive services exposed via network APIs, you encourage everyone to cooperate with you, rather than reimplement the same functionality. Each service must be designed to cooperate with others and have as few expectations as possible about the way in which it will be used.<br>The cooperative nature of the service ensures that, as more people use it, the service itself becomes more useful. For infrastructure services, this nature is critical — as each piece of the infrastructure becomes integrated with the service, the ways in which they can cooperate with each other explode exponentially, in ways the original service authors could never have predicted.</p>
+<h4 id="It-should-be-composable"><a href="#It-should-be-composable" class="headerlink" title="It should be composable."></a>It should be composable.</h4><p><em>“It should be ready for anything.”</em></p>
+<p>Once you have a bunch of nicely modularized services, you begin to compose them together into more complex applications. This is the moment where service orientation really begins to shine: as each primitive problem is solved, new applications can simply rely on it to provide the functionality required.</p>
+<p>Each component of the infrastructure gets a modular API, and you compose them together to automate the entire infrastructure.</p>
+<h4 id="It-should-be-flexible"><a href="#It-should-be-flexible" class="headerlink" title="It should be flexible."></a>It should be flexible.</h4><p><em>“It should be capable of doing whatever is required.”</em></p>
+<p>No matter what your problem is, it’s likely that you can solve it with a high-level programming language. Given even the most obscure and complex of policies, you can probably write a program to automate it — you are limited only by your knowledge and the facilities available in the language.</p>
+<h4 id="It-should-be-extensible"><a href="#It-should-be-extensible" class="headerlink" title="It should be extensible."></a>It should be extensible.</h4><p><em>“When something new is encountered, it’s easy to extend.”</em></p>
+<p>When you encounter a problem the language has never seen before, such as a new protocol you need to speak, you can write a library to resolve it. This is a side effect of the language being general purpose—because it doesn’t pretend to understand the sorts of problems it might be called upon to tackle, it behooves the designers of these languages to make them extensible enough that developers in the field can scratch their own itch.</p>
+<h4 id="It-should-be-repeatable"><a href="#It-should-be-repeatable" class="headerlink" title="It should be repeatable."></a>It should be repeatable.</h4><p><em>“No matter how many times you do it, it works the same way.”</em></p>
+<p>When you write a piece of automation around a process, you cause that process to become repeatable. Given the same set of inputs, and the rest of the system functioning properly, you are going to get the exact same results. A side effect of being repeatable is being consistent—once you can rely on the results, you can also expect that the results will be correct.</p>
+<h4 id="It-should-be-declarative"><a href="#It-should-be-declarative" class="headerlink" title="It should be declarative."></a>It should be declarative.</h4><p><em>“It’s about what you want, not how to do it.”</em></p>
+<p>Rather than talk about how to do something, you should declare what you want done and let the tool determine how to do it on your behalf. For example, in Cfengine 2:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">packages: sudo</div><div class="line">  action=installed</div></pre></td></tr></table></figure></p>
+<p>would make sure that sudo is installed. This is opposed to the following, which focuses on how you install sudo<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">apt-get install sudo</div></pre></td></tr></table></figure></p>
+<p>The declarative syntax has an additional side effect: for the things the tool knows how to manage, you can think about what you want the system to be like (the policy) and leave the process to the tool.</p>
+<h4 id="It-should-be-abstract"><a href="#It-should-be-abstract" class="headerlink" title="It should be abstract."></a>It should be abstract.</h4><p><em>“It takes care of the details for you.”</em></p>
+<p>Under the hood, configuration management tools know how to map the description of the state you want a resource to be in to the mechanism the system has to fulfill it. They transform a package statement such as the one in the preceding bullet to the apt-get statement through auto-detecting the appropriate mechanism for your platform.</p>
+<h4 id="It-should-be-idempotent"><a href="#It-should-be-idempotent" class="headerlink" title="It should be idempotent."></a>It should be idempotent.</h4><p><em>“It takes action only if it needs to.”</em></p>
+<p>Each resource is responsible for ensuring that it is in the proper state, and that means action is taken only if the resource isn’t already properly configured. If the entire system is properly configured, no action will be taken.</p>
+<h4 id="It-should-be-convergent"><a href="#It-should-be-convergent" class="headerlink" title="It should be convergent."></a>It should be convergent.</h4><p><em>“It takes care of itself and relies on other services to do the same.”</em></p>
+<p>Each resource is responsible for ensuring that it is in the proper state. With each resource acting as an autonomous actor, the system as a whole operates in a convergent manner; over time, each small act brings the system fully in line with the overall policy. In addition to the declarative syntax, the convergent nature of configuration management tools allows system administrators to focus on the policy, not the process.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/book/">book</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/soa/">soa</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
       <article id="post-python-lockfile" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -555,106 +674,6 @@
       <footer class="article-footer">
         
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/performance/">performance</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/storage/">storage</a></li></ul>
-
-      </footer>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-    
-      <article id="post-change-ext-journal-device-ext4" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/02/10/change-ext-journal-device-ext4/">Смена устройства, хранящего внешний журнал ext4</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      <a href="/2016/02/10/change-ext-journal-device-ext4/" class="article-date">
-  <time datetime="2016-02-10T09:00:00.000Z" itemprop="datePublished">2016-02-10</time>
-</a>
-      
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Недавно столкнулся со следующей ситуацией.</p>
-<p>Есть файловая система ext4 на 22 Тб. Настроили для неё размещение журнала на отдельной SSD, указали опцию монтирования <code>journal_async_commit</code>.<br>Спустя сутки ФС внезапно стала read-only. Оказалось, диск, на котором размещался журнал, был извлечён из системы с помощью <code>MegaCli</code>.<br>Отмонтировать ФС не удавалось, umount “висел”. Были вынуждены перезагрузить сервер через reset.</p>
-<p>После загрузки сменились major и minor номера всех блочных устройств, они стали такими:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"># cat /proc/partitions</div><div class="line">major minor  #blocks  name</div><div class="line"></div><div class="line">   8       16  233897984 sdb</div><div class="line">   8       17  233896960 sdb1</div><div class="line">   8       32  175276032 sdc</div><div class="line">   8        0 23437770752 sda</div><div class="line">   8        1 23437768704 sda1</div><div class="line">   8       48   97685784 sdd</div><div class="line">   8       49   97684480 sdd1</div><div class="line">#</div></pre></td></tr></table></figure>
-<p>ФС не монтировалась, несмотря на то, что при подключении внешнего журнала был указан UUID. Примонтировали ФС только со сменой устройства журнала:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mount -t ext4 -o journal_dev=$(stat -c &quot;0x%t%T&quot; /dev/sdc) /dev/sda1 /var/spool/maildir</div></pre></td></tr></table></figure>
-<p>Трудность была в том, что в мануале <code>mount</code> не указано, в каком формате необходимо передавать аргумент опции <code>journal_dev</code>. Информацию я нашёл лишь где-то в списках рассылки.</p>
-<p>Стоит отметить, что в современных версиях <code>mount</code> есть опция <code>journal_path</code>, которая позволяет указать просто путь к устройству. Но в Ubuntu 12.04 этой опции в <code>mount</code> нет.</p>
-<p>После успешного монтирования мы опять выполнили <code>umount</code>, чтобы “прогнать” <code>e2fsck</code>. После ФС успешно примонтировалась просто по <code>mount -a</code>.</p>
-
-      
-    </div>
-    
-    
-      <footer class="article-footer">
-        
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/storage/">storage</a></li></ul>
-
-      </footer>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-    
-      <article id="post-time_wait-sockets" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  <h1 itemprop="name">
-    <a class="article-title" href="http://vincent.bernat.im/en/blog/2014-tcp-time-wait-state-linux.html" target="_blank" itemprop="url">Всё о сокетах в состоянии TIME_WAIT</a>
-  </h1>
-
-      </header>
-    
-    <div class="article-meta">
-      <a href="/2016/01/21/time_wait-sockets/" class="article-date">
-  <time datetime="2016-01-21T09:00:00.000Z" itemprop="datePublished">2016-01-21</time>
-</a>
-      
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Превосходная статья о сокетах, находящихся в состоянии <code>TIME_WAIT</code>.</p>
-
-      
-    </div>
-    
-    
-      <footer class="article-footer">
-        
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/network/">network</a></li></ul>
 
       </footer>
     

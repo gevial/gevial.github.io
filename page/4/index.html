@@ -93,160 +93,6 @@
 
 
     
-      <article id="post-python-multiprocessing-sysexit" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/06/17/python-multiprocessing-sysexit/">multiprocessing.Process и sys.exit()</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      <a href="/2015/06/17/python-multiprocessing-sysexit/" class="article-date">
-  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
-</a>
-      
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Мониторинг времени отклика серверов хостинга мы мониторим так.</p>
-<p>Есть скрипт, который берёт список серверов и запрашивает с каждого веб-страничку (Wordpress с плагином Query Monitor), парсит оттуда время генерации страницы и время работы БД, по пути считает время скачивания странички со всей статикой.<br>Сначала опрос происходил последовательно в цикле, но это не есть путь самурая, поэтому решено было распараллелить процесс.<br>Сперва взгляд лёг на модуль threading. Однако я тогда ещё не ощутил на практике недостатки GIL (Global Interpreter Lock). Дело обернулось тем, что для каждого сервера время скачивания было 6-7 секунд, хотя настоящее значение лежит в пределах секунды. Так произошло как раз из-за GIL: таймеры в потоках были запущены, но фактически выполнялся лишь один поток, остальные продолжали ждать.</p>
-<p>Тогда я решил поменять threading на multiprocessing, благо у них очень похожая семантика объектов.<br>Я вынес рабочий код из подкласса <code>threading.Thread</code> в функцию (не стал делать подкласс <code>multiprocessing.Process</code>, так как захотелось использовать пул подпроцессов - <code>multiprocessing.Pool</code>, а он не поддерживает создание чайлдов из кастомных классов), функция в зависимости от статуса исполнения завершалась <code>sys.exit(0)</code> или <code>sys.exit(1)</code>. Но мой код не заработал.</p>
-<p>Проблема заключалась в том, что, после обработки всех серверов, скрипт и его дочерние процесы продолжали работать. <code>strace</code> показал, что они висят в ожидании мьютекса. По всей видимости, <code>multiprocessing.Process</code> оборачивает полезный код, передаваемый в виде функции, дополнительными вызовами, в частности, отпускает мьютекс. В моей функции был вызов <code>sys.exit()</code>, поэтому этот код никогда не вызывался. Это лишь предположение, но факт оказался фактом: когда я поменял <code>sys.exit()</code> на <code>return</code>, скрипт и его подпроцессы успешно завершались.</p>
-<p>Вывод: не используйте <code>sys.exit()</code> в функции, передаваемой в качестве <code>target</code> экземпляру <code>multiprocessing.Process</code>.</p>
-
-      
-    </div>
-    
-    
-      <footer class="article-footer">
-        
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
-
-      </footer>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-    
-      <article id="post-reinstall-grub" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/06/17/reinstall-grub/">Сервер не загружается после замены диска</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      <a href="/2015/06/17/reinstall-grub/" class="article-date">
-  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
-</a>
-      
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>После замены неисправного диска в Linux он не всегда может быть обнаружен системой (типичное поведение для старых ядер).</p>
-<p>В таком случае требуется перезагрузить сервер. Однако, бывает так, что после перезагрузки BIOS не может найти загрузчик – он мог быть установлен в MBR вылетевшего диска.<br>В таком случае требуется загрузить сервер с LiveCD. Я пользуюсь образами Gentoo. После загрузки в среду восстановления нужно разметить диск аналогично исправному. Если объём небольшой, и rebuild массива пройдёт быстро, то можно добавить диск в массив. После этого необходимо переустановить GRUB. Для этого надо подмонтировать массив и воспользоваться утилитой <code>grub-install</code>. Дело в том, что в LiveCD Gentoo нет утилит GRUB.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"># mkdir /mnt/tmp</div><div class="line"># mount /dev/md126 /mnt/tmp</div><div class="line"># mount -o bind /dev /mnt/tmp/dev</div><div class="line"># chroot /mnt/tmp</div></pre></td></tr></table></figure>
-<p>В chroot-окружении доступны все утилиты с сервера. Пытаемся установить загрузчик:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># grub-install /dev/sda</div><div class="line">/dev/md126 does not have any corresponding BIOS drive</div></pre></td></tr></table></figure>
-<p>Неудача. Дело в том, что загрузчик грузится с MBR диска, он не может быть загружен с MD-устройства. Впрочем, это не мешает ему распознавать программные RAID-массивы и загружать ядро. Установить GRUB в /dev/sda всё же можно вручную:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"># grub</div><div class="line">grub&gt; root (hd0,0)        </div><div class="line">root (hd0,0)</div><div class="line">Filesystem type is ext2fs, partition type 0xfd</div><div class="line">grub&gt; setup (hd0)</div><div class="line">setup (hd0)</div><div class="line">Checking if &quot;/boot/grub/stage1&quot; exists... no</div><div class="line">Checking if &quot;/grub/stage1&quot; exists... yes</div><div class="line">Checking if &quot;/grub/stage2&quot; exists... yes</div><div class="line">Checking if &quot;/grub/e2fs_stage1_5&quot; exists... yes</div><div class="line">Running &quot;embed /grub/e2fs_stage1_5 (hd0)&quot;...  16 sectors are embedded.</div><div class="line">succeeded</div><div class="line">Running &quot;install /grub/stage1 (hd0) (hd0)1+16 p (hd0,0)/grub/stage2 /grub/grub.conf&quot;... succeeded</div><div class="line">Done.</div><div class="line">grub&gt; quit</div><div class="line"># reboot</div></pre></td></tr></table></figure>
-<p>Также не забудьте изменить имя MD-устройства, если оно изменилось (например, с md0 на md126 ) в файле <code>/etc/fstab</code>. После перезагрузки сервер должен успешно подняться.</p>
-<p>Ссылки:<br><a href="http://idolinux.blogspot.ru/2009/07/reinstall-grub-bootloader-on-md0.html" target="_blank" rel="external">http://idolinux.blogspot.ru/2009/07/reinstall-grub-bootloader-on-md0.html</a></p>
-
-      
-    </div>
-    
-    
-      <footer class="article-footer">
-        
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/troubleshooting/">troubleshooting</a></li></ul>
-
-      </footer>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-    
-      <article id="post-sata-host-scan" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/06/17/sata-host-scan/">Инициализация сканирования устройств SATA-контроллером в Linux</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      <a href="/2015/06/17/sata-host-scan/" class="article-date">
-  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
-</a>
-      
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Некоторые платформы не определяют диски автоматически - после “горячего” подключения в системе их не видно.</p>
-<p>Можно запустить сканирование подключённых к SATA-контроллеру устройств:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">echo &quot;- - -&quot; &gt; /sys/class/scsi_host/host0/scan</div></pre></td></tr></table></figure>
-      
-    </div>
-    
-    
-      <footer class="article-footer">
-        
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hardware/">hardware</a></li></ul>
-
-      </footer>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-    
       <article id="post-several-ip-assign" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -299,6 +145,209 @@
 
 
     
+      <article id="post-gethostbyname-ndots" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/06/17/gethostbyname-ndots/">Разрешение коротких имён с помощью gethostbyname()</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/06/17/gethostbyname-ndots/" class="article-date">
+  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Сегодня обнаружил особенность работы функции gethostbyname() стандартной библиотеки C в Linux.</p>
+<p>При указании в качестве аргумента короткого имени, к нему автоматически добавляется домен машины. В моём окружении данное поведение нежелательно, так как короткое имя и FQDN резолвятся в разные адреса (приватный и публичный соответственно). Ситуация легко обходится следующим образом: достаточно добавить в конце имени точку. Тогда домен добавляться не будет. Пример на Python’е:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&gt;&gt; <span class="keyword">import</span> socket</div><div class="line">&gt;&gt; socket.gethostbyname(<span class="string">'hserv1'</span>)</div><div class="line"><span class="number">123.45</span><span class="number">.67</span><span class="number">.89</span></div><div class="line">&gt;&gt;socket.gethostbyname(<span class="string">'hserv1.'</span>)</div><div class="line"><span class="number">192.168</span><span class="number">.0</span><span class="number">.27</span></div></pre></td></tr></table></figure>
+<p>Такое поведение настраивается. В <code>/etc/resolv.conf</code> можно указать опцию <code>ndots</code>. Если в имени меньше точек, чем <code>ndots</code>, то происходит добавление домена.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/dns/">dns</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-dnsmasq" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/06/17/dnsmasq/">dnsmasq и /etc/hosts</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/06/17/dnsmasq/" class="article-date">
+  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Я использую dnsmasq в качестве ресолвера и DHCP-сервера для офиса. Демон также ресолвит имена из локального файла hosts.<br>Если в hosts указано два имени через запятую для одного IP-адреса, то dnsmasq будет ресолвить только последнее. Чтобы избежать этой ситуации, достаточно создать две строчки для этого IP в hosts.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/dhcp/">dhcp</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/dns/">dns</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-disable-zendmm" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/06/17/disable-zendmm/">Отключение Zend Memory Manager</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/06/17/disable-zendmm/" class="article-date">
+  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Интерпретатор PHP Zend Engine включает в себя такой компонент как Zend Memory Manager.<br>Таким образом, PHP сам управляет памятью, позволяя отслеживать выделения памяти для предотвращения утечек и ограничивать потребление памяти для каждого отдельно взятого сценария.<br>Иногда, например, при возникновении в сценарии ошибки сегментации, бывает полезным отключить Zend Memory Manager (в таком случае интерпретатор начинает использовать стандартные средства ОС для работы с памятью). Делается это установкой переменной окружения USE_ZEND_ALLOC в 0.</p>
+<p>Если вы используете Apache, наиболее удобные способы установить данную переменную – добавить в init-скрипт веб-сервера строку</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">export USE_ZEND_ALLOC=0</div></pre></td></tr></table></figure>
+<p>или указать в конфигурационном файле Apache директиву</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">SetEnv USE_ZEND_ALLOC 0</div></pre></td></tr></table></figure>
+<p>Ссылки:<br><a href="http://www.php.net/manual/en/internals2.memory.php" target="_blank" rel="external">http://www.php.net/manual/en/internals2.memory.php</a></p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/apache/">apache</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/php/">php</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-mysql-query-statistics" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/06/17/mysql-query-statistics/">Статистика времени выполнения запросов в MySQL</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/06/17/mysql-query-statistics/" class="article-date">
+  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>В MySQL существует возможность логирования “медленных” запросов.</p>
+<p>В такой лог будут записаны все запросы, выполнение которых заняло более <code>long_query_time</code> секунд. Безусловно, анализ slow_log’а может помочь найти узкое место. Но, несмотря на то, что <code>long_query_time</code> можно указывать с точностью до микросекунд, бывает необходимо проанализировать общую статистику времени исполнения запросов.</p>
+<p>Командой Percona реализована такая возможность. Посмотреть распределение можно с помощью запросов.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">mysql&gt; SHOW QUERY_RESPONSE_TIME;</div><div class="line">time                   count   total</div><div class="line">0.000001               0       0.000000</div><div class="line">0.000010               0       0.000000</div><div class="line">0.000100               1       0.000072</div><div class="line">0.001000               0       0.000000</div><div class="line">0.010000               0       0.000000</div><div class="line">0.100000               0       0.000000</div><div class="line">1.000000               0       0.000000</div><div class="line">10.000000              8       47.268416</div><div class="line">100.000000             0       0.000000</div><div class="line">1000.000000            0       0.000000</div><div class="line">10000.000000           0       0.000000</div><div class="line">100000.000000          0       0.000000</div><div class="line">1000000.000000         0       0.000000</div><div class="line">TOO LONG QUERY         0       0.000000</div></pre></td></tr></table></figure>
+<p>Эти данные хранятся в таблице <em>INFORMATION_SCHEMA.QUERY_RESPONSE_TIME</em>. Например, приведённый вывод означает, что с момента запуска сервера 1 запрос был выполнен за время 0.000010 с &lt; t &lt; 0.000100 с, общее время выполнения запросов в данной категории – 0.000072 с. Также 8 запросов были выполнены за время 1 с &lt; t &lt; 10 с каждый, общее время – 47.268416 с.<br>Сбросить данные можно с помощью запроса</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mysql&gt; FLUSH QUERY_RESPONSE_TIME;</div></pre></td></tr></table></figure>
+<p>Вообще данный функционал имеет множество различных настроек. Полная документация опубликована на сайте Percona. Разумеется, статистика недоступна в оригинальной MySQL, а лишь в Percona Server и в MariaDB.</p>
+<p>Ссылки:<br><a href="http://www.percona.com/doc/percona-server/5.5/diagnostics/response_time_distribution.html" target="_blank" rel="external">http://www.percona.com/doc/percona-server/5.5/diagnostics/response_time_distribution.html</a><br><a href="https://mariadb.com/kb/en/query_response_time-plugin/" target="_blank" rel="external">https://mariadb.com/kb/en/query_response_time-plugin/</a><br><a href="http://dev.mysql.com/doc/refman/5.5/en/slow-query-log.html" target="_blank" rel="external">http://dev.mysql.com/doc/refman/5.5/en/slow-query-log.html</a></p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
       <article id="post-delete-block-device" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -332,6 +381,73 @@
       <footer class="article-footer">
         
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hardware/">hardware</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-centos-web2py" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/06/17/centos-web2py/">Настройка стека nginx – uwsgi – web2py в CentOS</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/06/17/centos-web2py/" class="article-date">
+  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Как сообщает Википедия, WSGI – это простой и универсальный низкоуровневый интерфейс между веб-сервером и веб-приложением/фреймворком, написанном на Python’е.</p>
+<p>В WSGI существуют понятия “server”, или “gateway”, и “application”, или “framework”. Наиболее распространённым middleware для реализации обмена через WSGI является uWSGI. Для веб-сервера uWSGI выступает в роли “application”, для приложения – в роли “server”.<br>nginx имеет нативную поддержку uwsgi, что не может не радовать.</p>
+<p>В качестве “приложения” в моём случае будет выступать фреймворк web2py – очень удобная штука, позволяет быстро разрабатывать веб-приложения. Имеет встроенный Twitter bootstrap и DAL (Database Abstraction Layer).</p>
+<p>Настройка nginx заключается в создании нового блока <code>server{}</code>, пример конфигурации для web2py:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">server &#123;</div><div class="line">    listen          80;</div><div class="line">    server_name     web2py.example.com;</div><div class="line"></div><div class="line">    location ~* /(\w+)/static/ &#123;</div><div class="line">        root /var/www/web2py/applications/;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    location / &#123;</div><div class="line">        uwsgi_pass      127.0.0.1:9001;</div><div class="line">        include         uwsgi_params;</div><div class="line">        uwsgi_param     UWSGI_SCHEME $scheme;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>Фактически, достаточно указать директиве <code>uwsgi_pass</code> сокет демона uWSGI (TCP/IP или Unix domain) и подключить директивы из файла <code>uwsgi_params</code>, входящего в стандартную поставку nginx.</p>
+<p>Настройка uWSGI заключается в настройке родительского процесса, называемого Emperor, и одного или нескольких “вассалов” – пулов обработчиков. Надо лишь не забыть помимо самого uwsgi установить к нему плагин python:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">yum install uwsgi-plugin-python</div></pre></td></tr></table></figure>
+<p>Дело в том, что uwsgi, как я уже говорил – middleware, бэкендом может служить не только Python, но и PHP, Perl, Ruby, Lua, Go и пр. Вообще uwsgi богат возможностями – поддерживает различные модели управления обработчиками (prefork, threaded, asynchronous/evented, green thread/coroutine), кластеризацию, мониторинг и т.д.</p>
+<p>Вот пример конфигурационного файла “императора” и пула для web2py.</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="section">[uwsgi]</span></div><div class="line"><span class="attr">uid</span> = uwsgi</div><div class="line"><span class="attr">gid</span> = uwsgi</div><div class="line"><span class="attr">pidfile</span> = /run/uwsgi/uwsgi.pid</div><div class="line"><span class="attr">emperor</span> = /etc/uwsgi.d</div><div class="line"><span class="attr">stats</span> = /run/uwsgi/stats.sock</div><div class="line"><span class="attr">emperor-tyrant</span> = <span class="literal">true</span></div><div class="line"><span class="attr">cap</span> = setgid,setuid</div><div class="line"><span class="attr">plugins</span> = python</div></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">uwsgi</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">uid</span>&gt;</span>nginx<span class="tag">&lt;/<span class="name">uid</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">gid</span>&gt;</span>nginx<span class="tag">&lt;/<span class="name">gid</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">plugin</span>&gt;</span>python<span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">socket</span>&gt;</span>127.0.0.1:9001<span class="tag">&lt;/<span class="name">socket</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">pythonpath</span>&gt;</span>/var/www/web2py/<span class="tag">&lt;/<span class="name">pythonpath</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">module</span>&gt;</span>wsgihandler<span class="tag">&lt;/<span class="name">module</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">processes</span>&gt;</span>3<span class="tag">&lt;/<span class="name">processes</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">harakiri</span>&gt;</span>60<span class="tag">&lt;/<span class="name">harakiri</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">reload-mercy</span>&gt;</span>8<span class="tag">&lt;/<span class="name">reload-mercy</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">cpu-affinity</span>&gt;</span>1<span class="tag">&lt;/<span class="name">cpu-affinity</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">max-requests</span>&gt;</span>2000<span class="tag">&lt;/<span class="name">max-requests</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">limit-as</span>&gt;</span>512<span class="tag">&lt;/<span class="name">limit-as</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">reload-on-as</span>&gt;</span>256<span class="tag">&lt;/<span class="name">reload-on-as</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">reload-on-rss</span>&gt;</span>192<span class="tag">&lt;/<span class="name">reload-on-rss</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">no-orphans</span>/&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">uwsgi</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>Теперь о подводных камнях.</p>
+<ul>
+<li>Владельцем файла настроек пула <code>/etc/uwsgi.d/web2py.xml</code> должен быть пользователь, указанный в теге , иначе вы увидите ошибку “invalid permissions”.</li>
+<li>Процессы uwsgi не завершаются по SIGTERM. Они лишь перечитывают конфиг. Завершаются же они по SIGQUIT. Конфигурационная опция <code>–die-on-term</code> инвертирует интерпретацию данных сигналов.</li>
+<li>Для работы фреймворка web2py требуется сделать символическую ссылку из <code>/var/www/web2py/handlers/wsgihandler.py</code> в корень фреймворка.</li>
+<li>Доступ к административной части web2py обязательно должен осуществляться по HTTPS.</li>
+<li>Хэш пароля администратора должен храниться в файле <code>parameters_&lt;port&gt;.py</code> в корне фреймворка, где – тот порт, через который осуществляется доступ к веб-приложению. Т.е. если uwsgi запущен на localhost:9001, но вы ставите его за nginx и подключаетесь по HTTPS, то файл должен называться <code>parameters_443.py</code>. В любом случае, корректное имя файла можно узнать из трассировки системных вызовов обработчика uwsgi.</li>
+</ul>
+<p>Ссылки:<br><a href="http://uwsgi-docs.readthedocs.org http://www.web2py.com" target="_blank" rel="external">http://uwsgi-docs.readthedocs.org http://www.web2py.com</a></p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/nginx/">nginx</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/uwsgi/">uwsgi</a></li></ul>
 
       </footer>
     

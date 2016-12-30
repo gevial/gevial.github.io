@@ -43,7 +43,7 @@
   </div>
 </header>
     <section id="main" class="outer">
-      <article id="post-disable-zendmm" class="article article-type-post" itemscope itemprop="blogPost">
+      <article id="post-local-elk-fast-start" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -51,27 +51,36 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/06/17/disable-zendmm/">Отключение Zend Memory Manager</a>
+      <a class="article-title" href="/2015/07/14/local-elk-fast-start/">Запуск ELK stack локально для быстрого анализа лог-файлов</a>
     </h1>
   
 
       </header>
     
     <div class="article-meta">
-      <a href="/2015/06/17/disable-zendmm/" class="article-date">
-  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
+      <a href="/2015/07/14/local-elk-fast-start/" class="article-date">
+  <time datetime="2015-07-13T21:00:00.000Z" itemprop="datePublished">2015-07-14</time>
 </a>
       
       
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Интерпретатор PHP Zend Engine включает в себя такой компонент как Zend Memory Manager.<br>Таким образом, PHP сам управляет памятью, позволяя отслеживать выделения памяти для предотвращения утечек и ограничивать потребление памяти для каждого отдельно взятого сценария.<br>Иногда, например, при возникновении в сценарии ошибки сегментации, бывает полезным отключить Zend Memory Manager (в таком случае интерпретатор начинает использовать стандартные средства ОС для работы с памятью). Делается это установкой переменной окружения USE_ZEND_ALLOC в 0.</p>
-<p>Если вы используете Apache, наиболее удобные способы установить данную переменную – добавить в init-скрипт веб-сервера строку</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">export USE_ZEND_ALLOC=0</div></pre></td></tr></table></figure>
-<p>или указать в конфигурационном файле Apache директиву</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">SetEnv USE_ZEND_ALLOC 0</div></pre></td></tr></table></figure>
-<p>Ссылки:<br><a href="http://www.php.net/manual/en/internals2.memory.php" target="_blank" rel="external">http://www.php.net/manual/en/internals2.memory.php</a></p>
+        <p>Столкнулся с необходимостью проанализировать логи Apache хостингового сервера. Период - около недели. Логов много - почти 2 миллиона строк.</p>
+<p>Самое удобное решение - развернуть на локальной машине ELK stack (Elasticsearch, Logstash, Kibana) и запихнуть туда логи. Делается это очень быстро.</p>
+<p>1) Скачиваем ELK с <a href="http://elastic.co" target="_blank" rel="external">elastic.co</a> (версия Elasticsearch должна быть та, которая совпадает с Logstash. В моём случае это 1.5.2 - последнняя версия Logstash)</p>
+<p>2)  Пишем конфиг для Logstash. Вот мой, для логов Apache:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">input &#123;</div><div class="line">    file &#123;</div><div class="line">        path =&gt; [ &quot;/home/gena/Desktop/galileo.log&quot; ]</div><div class="line">        sincedb_path =&gt; &quot;/dev/null&quot;</div><div class="line">        start_position =&gt; &quot;beginning&quot;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">filter &#123;</div><div class="line">     grok &#123;</div><div class="line">         match =&gt; &#123; &quot;message&quot; =&gt; &quot;apache_access: %&#123;IPORHOST:http_host&#125; %&#123;DATA:remote_addr&#125; .* \[%&#123;HTTPDATE:time_local&#125;\] \&quot;(?&lt;request_method&gt;[A-Z]+) %&#123;DATA:request&#125; HTTP\/[01]\.[0-9]\&quot; (?&lt;status&gt;\d\d\d) (?&lt;body_bytes_sent&gt;.*) %&#123;QS:http_referer&#125; %&#123;QS:http_user_agent&#125;&quot; &#125;</div><div class="line">     &#125;</div><div class="line">     date &#123;</div><div class="line">         match =&gt; [ &quot;time_local&quot;, &quot;dd/MMM/YYYY:HH:mm:ss Z&quot; ]</div><div class="line">     &#125;</div><div class="line">&#125;</div><div class="line">output &#123;</div><div class="line">    elasticsearch &#123;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>Следует обратить внимание на опции <code>sincedb_path</code> и <code>start_position</code>. Если их не указать, можно впасть в долгие попытки понять, почему же не работает ввод из файла (если, к примеру, были ошибки в конфигурации и пришлось запускать Logstash несколько раз).</p>
+<p>3) Запускаем Elastisearch и Logstash:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ logstash-1.5.2/bin/logstash -f apache.conf</div><div class="line">$ elasticsearch-1.5.2/bin/elasticsearch</div></pre></td></tr></table></figure>
+<p>4) Логи уже потекли в Elasticsearch. Теперь надо создать индекс <code>.kibana</code> для служебных нужд Kibana и включить для него Dynamic Mapping.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ curl -XPUT localhost:9200/.kibana -d &apos;&#123; &quot;index.mapper.dynamic&quot;: true &#125;&apos;</div></pre></td></tr></table></figure></p>
+<p>5) Запускаем Kibana</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ kibana-4.1.1-linux-x64/bin/kibana</div></pre></td></tr></table></figure>
+<p>6) Открываем <a href="http://localhost:5601" target="_blank" rel="external">http://localhost:5601</a> (Kibana) и настраиваем шаблон для отображения индексов.</p>
+<p>7) …</p>
+<p>8) PROFIT!!!</p>
+<p>Теперь можно работать с логами по-человечески.</p>
 
       
     </div>
@@ -79,7 +88,7 @@
     
       <footer class="article-footer">
         
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/apache/">apache</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/php/">php</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/apache/">apache</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/elk/">elk</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/logs/">logs</a></li></ul>
 
       </footer>
     
@@ -95,7 +104,7 @@
 
 
     
-      <article id="post-gethostbyname-ndots" class="article article-type-post" itemscope itemprop="blogPost">
+      <article id="post-debug-502-php" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -103,14 +112,71 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/06/17/gethostbyname-ndots/">Разрешение коротких имён с помощью gethostbyname()</a>
+      <a class="article-title" href="/2015/06/19/debug-502-php/">Отладка ошибки 502, вызываемой падением PHP-сценария</a>
     </h1>
   
 
       </header>
     
     <div class="article-meta">
-      <a href="/2015/06/17/gethostbyname-ndots/" class="article-date">
+      <a href="/2015/06/19/debug-502-php/" class="article-date">
+  <time datetime="2015-06-18T21:00:00.000Z" itemprop="datePublished">2015-06-19</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Ошибка 502 является, пожалуй, наиболее сложной для отладки.</p>
+<p>Однако, если ошибка вызывана аварийным завершением работы PHP-сценария, найти причину можно достаточно быстро. На помощь придёт <code>gdb</code>.</p>
+<p>Первое, что нам нужно, это настроит сбор core-дампов в веб-сервере. Имея файл (предположим, что его имя core), загрузим его в <code>gdb</code>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"># gdb /opt/apache/bin/httpd core</div><div class="line">GNU gdb 6.8</div><div class="line">Copyright (C) 2008 Free Software Foundation, Inc.</div><div class="line">License GPLv3+: GNU GPL version 3 or later &lt;http://gnu.org/licenses/gpl.html&gt;</div><div class="line">This is free software: you are free to change and redistribute it.</div><div class="line">There is NO WARRANTY, to the extent permitted by law.  Type &quot;show copying&quot;</div><div class="line">and &quot;show warranty&quot; for details.</div><div class="line">This GDB was configured as &quot;x86_64-pc-linux-gnu&quot;...</div><div class="line">(no debugging symbols found)</div><div class="line"></div><div class="line">warning: Can&apos;t read pathname for load map: Input/output error.</div><div class="line">Reading symbols from /lib64/libm.so.6...(no debugging symbols found)...done.</div><div class="line">Loaded symbols for /lib/libm.so.6</div><div class="line">Reading symbols from /lib64/libcrypt.so.1...(no debugging symbols found)...done.</div><div class="line">...</div><div class="line"></div><div class="line">Core was generated by `/opt/apache/bin/httpd -f /etc/opt/apache/config/labirintum.conf&apos;.</div><div class="line">Program terminated with signal 11, Segmentation fault.</div><div class="line">[New process 30762]</div><div class="line">#0  0x00007f31f727649b in memcpy () from /lib/libc.so.6</div><div class="line">(gdb)</div></pre></td></tr></table></figure>
+<p>Выводим backtrace командой <code>bt</code>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">#0  0x00007f31f727649b in memcpy () from /lib/libc.so.6</div><div class="line">#1  0x00007f31f6048f94 in zend_prepare_string_for_scanning (str=&lt;value optimized out&gt;, filename=0x7f31f65e55bf &quot;&quot;)</div><div class="line">    at Zend/zend_language_scanner.l:447</div><div class="line">#2  0x00007f31f600342f in zif_token_get_all (ht=&lt;value optimized out&gt;, return_value=0x33cc2d0,</div><div class="line">    return_value_ptr=&lt;value optimized out&gt;, this_ptr=&lt;value optimized out&gt;, return_value_used=&lt;value optimized out&gt;)</div><div class="line">    at /usr/src/php5.3/ext/tokenizer/tokenizer.c:177</div><div class="line">#3  0x00007f31f609de63 in zend_do_fcall_common_helper_SPEC (execute_data=0x7f31e2fc5dc0)</div><div class="line">    at /usr/src/php5.3/Zend/zend_vm_execute.h:320</div><div class="line">#4  0x00007f31f609d023 in execute (op_array=0x33e2c08) at /usr/src/php5.3/Zend/zend_vm_execute.h:107</div><div class="line">#5  0x00007f31f124faa6 in zend_oe () from /usr/local/lib/php/extensions/ZendGuardLoader.so</div><div class="line">#6  0x00007f31f609d98e in zend_do_fcall_common_helper_SPEC (execute_data=0x7f31e2fc58d8)</div><div class="line">    at /usr/src/php5.3/Zend/zend_vm_execute.h:344</div><div class="line">#7  0x00007f31f609d023 in execute (op_array=0x33e5738) at /usr/src/php5.3/Zend/zend_vm_execute.h:107</div><div class="line">#8  0x00007f31f124faa6 in zend_oe () from /usr/local/lib/php/extensions/ZendGuardLoader.so</div><div class="line">#9  0x00007f31f609d98e in zend_do_fcall_common_helper_SPEC (execute_data=0x7f31e2fc3118)</div><div class="line">    at /usr/src/php5.3/Zend/zend_vm_execute.h:344</div><div class="line">#10 0x00007f31f609d023 in execute (op_array=0x1dae780) at /usr/src/php5.3/Zend/zend_vm_execute.h:107</div><div class="line">#11 0x00007f31f124faa6 in zend_oe () from /usr/local/lib/php/extensions/ZendGuardLoader.so</div><div class="line">#12 0x00007f31f609d98e in zend_do_fcall_common_helper_SPEC (execute_data=0x7f31e2fc2f90)</div><div class="line">    at /usr/src/php5.3/Zend/zend_vm_execute.h:344</div><div class="line">#13 0x00007f31f609d023 in execute (op_array=0x25445c0) at /usr/src/php5.3/Zend/zend_vm_execute.h:107</div><div class="line">#14 0x00007f31f124faa6 in zend_oe () from /usr/local/lib/php/extensions/ZendGuardLoader.so</div><div class="line">#15 0x00007f31f609d98e in zend_do_fcall_common_helper_SPEC (execute_data=0x7f31e2fc20a0)</div><div class="line">    at /usr/src/php5.3/Zend/zend_vm_execute.h:344</div><div class="line">...</div></pre></td></tr></table></figure>
+<p>Нам нужно перейти в четвёртый фрейм, соответствующий функции <code>execute()</code>, в которой происходит непосредственное исполнение интерпретатором сценария.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">(gdb) frame 4</div><div class="line">#4  0x00007f31f609d023 in execute (op_array=0x33e2c08) at /usr/src/php5.3/Zend/zend_vm_execute.h:107</div><div class="line">107			if ((ret = EX(opline)-&gt;handler(execute_data TSRMLS_CC)) &gt; 0) &#123;</div></pre></td></tr></table></figure>
+<p>Далее можно узнать имя файла и имя функции, в которой возникает Segmentation Fault.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">(gdb) print op_array.function_name</div><div class="line">$1 = 0x33e37a8 &quot;getPhpChunks&quot;</div><div class="line">(gdb) print op_array.filename</div><div class="line">$2 = 0x33828b8 &quot;/home/j/johndoe/beta.example.com/public_html/bitrix/modules/main/classes/general/php_parser.php&quot;</div><div class="line">(gdb)</div></pre></td></tr></table></figure>
+<p>Итак, теперь мы знаем имя файла, функции, и даже строку, в которой происходит падение интерпретатора.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/apache/">apache</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/php/">php</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/troubleshooting/">troubleshooting</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-routes-on-vpn-connect-osx" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/06/17/routes-on-vpn-connect-osx/">Автосоздание маршрутов при подключении к VPN на macOS</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/06/17/routes-on-vpn-connect-osx/" class="article-date">
   <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
 </a>
       
@@ -118,10 +184,214 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Сегодня обнаружил особенность работы функции gethostbyname() стандартной библиотеки C в Linux.</p>
-<p>При указании в качестве аргумента короткого имени, к нему автоматически добавляется домен машины. В моём окружении данное поведение нежелательно, так как короткое имя и FQDN резолвятся в разные адреса (приватный и публичный соответственно). Ситуация легко обходится следующим образом: достаточно добавить в конце имени точку. Тогда домен добавляться не будет. Пример на Python’е:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&gt;&gt; <span class="keyword">import</span> socket</div><div class="line">&gt;&gt; socket.gethostbyname(<span class="string">'hserv1'</span>)</div><div class="line"><span class="number">123.45</span><span class="number">.67</span><span class="number">.89</span></div><div class="line">&gt;&gt;socket.gethostbyname(<span class="string">'hserv1.'</span>)</div><div class="line"><span class="number">192.168</span><span class="number">.0</span><span class="number">.27</span></div></pre></td></tr></table></figure>
-<p>Такое поведение настраивается. В <code>/etc/resolv.conf</code> можно указать опцию <code>ndots</code>. Если в имени меньше точек, чем <code>ndots</code>, то происходит добавление домена.</p>
+        <p>Не хочется весь трафик пускать через VPN.</p>
+<p>Чтобы при подключении автоматически создавались только нужные маршруты до рабочих ресурсов, нужно указать их в файле с именем <code>/etc/ppp/ip-up</code>. Примерное содержимое файла:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/sh</span></div><div class="line">/sbin/route add confluence.example.com -interface <span class="variable">$1</span></div><div class="line">/sbin/route add monitor.example.com -interface <span class="variable">$1</span></div><div class="line">/sbin/route add staff.example.com -interface <span class="variable">$1</span></div></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/environment/">environment</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vpn/">vpn</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-nginx-bind-error" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/06/17/nginx-bind-error/">nginx не запускается, безуспешно пытается bind 0.0.0.0:80</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/06/17/nginx-bind-error/" class="article-date">
+  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>При запуске nginx столкнулся с ошибкой:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">* Checking nginx&apos; configuration ...</div><div class="line">nginx: the configuration file /etc/nginx/nginx.conf syntax is ok</div><div class="line">nginx: configuration file /etc/nginx/nginx.conf test is successful                               [ ok ]</div><div class="line"> * Starting nginx ...</div><div class="line">nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)</div></pre></td></tr></table></figure>
+<p>При этом <code>listen 80;</code> в конфигах не указывается. А забиндить <code>0.0.0.0:80</code> nginx не смог, так как на 80 порту на <code>localhost</code> слушает Apache.<br>Оказалось, что в одном из конфигов в <code>/etc/nginx/ssl-enabled</code>, которые подключаются директивой <code>include</code>, не указана директива <code>listen</code> вовсе. И <code>nginx</code> брал для неё значение по умолчанию, то есть <code>0.0.0.0:80</code></p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/nginx/">nginx</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/troubleshooting/">troubleshooting</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-python-multiprocessing-sysexit" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/06/17/python-multiprocessing-sysexit/">multiprocessing.Process и sys.exit()</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/06/17/python-multiprocessing-sysexit/" class="article-date">
+  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Мониторинг времени отклика серверов хостинга мы мониторим так.</p>
+<p>Есть скрипт, который берёт список серверов и запрашивает с каждого веб-страничку (Wordpress с плагином Query Monitor), парсит оттуда время генерации страницы и время работы БД, по пути считает время скачивания странички со всей статикой.<br>Сначала опрос происходил последовательно в цикле, но это не есть путь самурая, поэтому решено было распараллелить процесс.<br>Сперва взгляд лёг на модуль threading. Однако я тогда ещё не ощутил на практике недостатки GIL (Global Interpreter Lock). Дело обернулось тем, что для каждого сервера время скачивания было 6-7 секунд, хотя настоящее значение лежит в пределах секунды. Так произошло как раз из-за GIL: таймеры в потоках были запущены, но фактически выполнялся лишь один поток, остальные продолжали ждать.</p>
+<p>Тогда я решил поменять threading на multiprocessing, благо у них очень похожая семантика объектов.<br>Я вынес рабочий код из подкласса <code>threading.Thread</code> в функцию (не стал делать подкласс <code>multiprocessing.Process</code>, так как захотелось использовать пул подпроцессов - <code>multiprocessing.Pool</code>, а он не поддерживает создание чайлдов из кастомных классов), функция в зависимости от статуса исполнения завершалась <code>sys.exit(0)</code> или <code>sys.exit(1)</code>. Но мой код не заработал.</p>
+<p>Проблема заключалась в том, что, после обработки всех серверов, скрипт и его дочерние процесы продолжали работать. <code>strace</code> показал, что они висят в ожидании мьютекса. По всей видимости, <code>multiprocessing.Process</code> оборачивает полезный код, передаваемый в виде функции, дополнительными вызовами, в частности, отпускает мьютекс. В моей функции был вызов <code>sys.exit()</code>, поэтому этот код никогда не вызывался. Это лишь предположение, но факт оказался фактом: когда я поменял <code>sys.exit()</code> на <code>return</code>, скрипт и его подпроцессы успешно завершались.</p>
+<p>Вывод: не используйте <code>sys.exit()</code> в функции, передаваемой в качестве <code>target</code> экземпляру <code>multiprocessing.Process</code>.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-reinstall-grub" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/06/17/reinstall-grub/">Сервер не загружается после замены диска</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/06/17/reinstall-grub/" class="article-date">
+  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>После замены неисправного диска в Linux он не всегда может быть обнаружен системой (типичное поведение для старых ядер).</p>
+<p>В таком случае требуется перезагрузить сервер. Однако, бывает так, что после перезагрузки BIOS не может найти загрузчик – он мог быть установлен в MBR вылетевшего диска.<br>В таком случае требуется загрузить сервер с LiveCD. Я пользуюсь образами Gentoo. После загрузки в среду восстановления нужно разметить диск аналогично исправному. Если объём небольшой, и rebuild массива пройдёт быстро, то можно добавить диск в массив. После этого необходимо переустановить GRUB. Для этого надо подмонтировать массив и воспользоваться утилитой <code>grub-install</code>. Дело в том, что в LiveCD Gentoo нет утилит GRUB.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"># mkdir /mnt/tmp</div><div class="line"># mount /dev/md126 /mnt/tmp</div><div class="line"># mount -o bind /dev /mnt/tmp/dev</div><div class="line"># chroot /mnt/tmp</div></pre></td></tr></table></figure>
+<p>В chroot-окружении доступны все утилиты с сервера. Пытаемся установить загрузчик:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># grub-install /dev/sda</div><div class="line">/dev/md126 does not have any corresponding BIOS drive</div></pre></td></tr></table></figure>
+<p>Неудача. Дело в том, что загрузчик грузится с MBR диска, он не может быть загружен с MD-устройства. Впрочем, это не мешает ему распознавать программные RAID-массивы и загружать ядро. Установить GRUB в /dev/sda всё же можно вручную:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"># grub</div><div class="line">grub&gt; root (hd0,0)        </div><div class="line">root (hd0,0)</div><div class="line">Filesystem type is ext2fs, partition type 0xfd</div><div class="line">grub&gt; setup (hd0)</div><div class="line">setup (hd0)</div><div class="line">Checking if &quot;/boot/grub/stage1&quot; exists... no</div><div class="line">Checking if &quot;/grub/stage1&quot; exists... yes</div><div class="line">Checking if &quot;/grub/stage2&quot; exists... yes</div><div class="line">Checking if &quot;/grub/e2fs_stage1_5&quot; exists... yes</div><div class="line">Running &quot;embed /grub/e2fs_stage1_5 (hd0)&quot;...  16 sectors are embedded.</div><div class="line">succeeded</div><div class="line">Running &quot;install /grub/stage1 (hd0) (hd0)1+16 p (hd0,0)/grub/stage2 /grub/grub.conf&quot;... succeeded</div><div class="line">Done.</div><div class="line">grub&gt; quit</div><div class="line"># reboot</div></pre></td></tr></table></figure>
+<p>Также не забудьте изменить имя MD-устройства, если оно изменилось (например, с md0 на md126 ) в файле <code>/etc/fstab</code>. После перезагрузки сервер должен успешно подняться.</p>
+<p>Ссылки:<br><a href="http://idolinux.blogspot.ru/2009/07/reinstall-grub-bootloader-on-md0.html" target="_blank" rel="external">http://idolinux.blogspot.ru/2009/07/reinstall-grub-bootloader-on-md0.html</a></p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/troubleshooting/">troubleshooting</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-nscd" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/06/17/nscd/">Кэширование ответов DNS с помощью nscd</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/06/17/nscd/" class="article-date">
+  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>nscd - Name Services Caching Daemon.</p>
+<p>nscd кэширует ответы различных служб имён. Чаще всего его настраивают ради кэширования ответов DNS. Не стоит путать nscd с кэширующим DNS-сервером – он им не является, кэш используется локально. Для использования кэширования в файле <code>/etc/nsswitch.conf</code> строка <code>hosts</code> должна иметь следующий вид:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">hosts: cache files dns</div></pre></td></tr></table></figure>
+<p>nscd является гибким инструментом, позволяет настраивать Positive и Negative TTL, persistence кэша при перезапуске демона, особое поведение при запросе имени, для которого есть запись в <code>/etc/hosts</code>. В man-страницах nscd и nscd.conf все нюансы расписаны очень подробно.</p>
 
       
     </div>
@@ -130,6 +400,59 @@
       <footer class="article-footer">
         
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/dns/">dns</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
+      <article id="post-mysql-start-segfault" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/06/17/mysql-start-segfault/">Segfault в MySQL при старте демона</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2015/06/17/mysql-start-segfault/" class="article-date">
+  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Перезагрузка сервера посредством нажатия кнопки “Reset” чревата последствиями.</p>
+<p>В частности, файловые системы или отдельные файлы могут остаться в неконсистентном состоянии, так как ядро или RAID-контроллер не имеют возможности слить буферы записи или writeback-кэш.</p>
+<p>Однажды после жёсткой перезагрузки сервера демон MySQL перестал запускаться – при старте в нём возникала ошибка сегментации.<br>Первый шаг любой диагностики – просмотр логов демона.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div></pre></td><td class="code"><pre><div class="line">140101  2:04:00 [Note] Plugin &apos;FEDERATED&apos; is disabled.</div><div class="line">InnoDB: The InnoDB memory heap is disabled</div><div class="line">InnoDB: Mutexes and rw_locks use GCC atomic builtins</div><div class="line">InnoDB: Compressed tables use zlib 1.2.3</div><div class="line">140101  2:04:00  InnoDB: Initializing buffer pool, size = 512.0M</div><div class="line">140101  2:04:00  InnoDB: Completed initialization of buffer pool</div><div class="line">140101  2:04:00  InnoDB: highest supported file format is Barracuda.</div><div class="line">InnoDB: Log scan progressed past the checkpoint lsn 9612902337</div><div class="line">140101  2:04:00  InnoDB: Database was not shut down normally!</div><div class="line">InnoDB: Starting crash recovery.</div><div class="line">InnoDB: Reading tablespace information from the .ibd files...</div><div class="line">InnoDB: Restoring possible half-written data pages from the doublewrite</div><div class="line">InnoDB: buffer...</div><div class="line">InnoDB: Doing recovery: scanned up to log sequence number 9612905565</div><div class="line">131231  5:33:44  InnoDB: Starting an apply batch of log records to the database...</div><div class="line">InnoDB: Progress in percents: 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 131231  5:33:44 -</div><div class="line">mysqld got signal 11 ;</div><div class="line">This could be because you hit a bug. It is also possible that this binary or one of the libraries it was linked against is corrupt, improperly built, or misconfigured. This error can also be caused by malfunctioning hardware.</div><div class="line">We will try our best to scrape up some info that will hopefully help diagnose the problem, but since we have already crashed, something is definitely wrong and this may fail.</div><div class="line"></div><div class="line">key_buffer_size=16777216</div><div class="line">read_buffer_size=16777216</div><div class="line">max_used_connections=0</div><div class="line">max_threads=500</div><div class="line">threads_connected=0</div><div class="line">It is possible that mysqld could use up to</div><div class="line">key_buffer_size + (read_buffer_size + sort_buffer_size)*max_threads = 12309856 K bytes of memory</div><div class="line">Hope that&apos;s ok; if not, decrease some variables in the equation.</div><div class="line"></div><div class="line">Thread pointer: 0x0</div><div class="line">Attempting backtrace. You can use the following information to find out where mysqld died. If you see no messages after this, something went terribly wrong...</div><div class="line">stack_bottom = (nil) thread_stack 0x40000</div><div class="line">/usr/sbin/mysqld(my_print_stacktrace+0x24) [0x862214]</div><div class="line">/usr/sbin/mysqld(handle_segfault+0x34d) [0x5a391d]</div><div class="line">/lib/libpthread.so.0(+0xf010) [0x7fcc80a87010]</div><div class="line">/usr/sbin/mysqld() [0x74f1d0]</div><div class="line">/usr/sbin/mysqld() [0x7508ea]</div><div class="line">/usr/sbin/mysqld() [0x73ed6f]</div><div class="line">/usr/sbin/mysqld() [0x7405ab]</div><div class="line">/usr/sbin/mysqld() [0x7c848b]</div><div class="line">/usr/sbin/mysqld() [0x7f337a]</div><div class="line">/usr/sbin/mysqld() [0x789121]</div><div class="line">/lib/libpthread.so.0(+0x68c4) [0x7fcc80a7e8c4]</div><div class="line">/lib/libc.so.6(clone+0x6d) [0x7fcc7fc27fdd]</div><div class="line">The manual page at http://dev.mysql.com/doc/mysql/en/crashing.html contains information that should help you find out what is causing the crash.</div></pre></td></tr></table></figure>
+<p>Видим, что ошибка сегментации возникает при воспроизведении redo-логов. В таком случае надо запустить демон с <code>innodb_force_recovery = 6</code> (включается SRV_FORCE_NO_LOG_REDO). После этого выполнить <code>SET GLOBAL innodb_fast_shutdown = 0</code> и остановить MySQL штатными средствами. Затем отключить <code>innodb_force_recovery</code>. После этого демон запустится.</p>
+<p>И, конечно, никогда не перезагружайте сервера при помощи “Reset” ;)</p>
+<p>Ссылки:<br><a href="http://www.mysqlperformanceblog.com/2006/08/04/innodb-double-write/" target="_blank" rel="external">http://www.mysqlperformanceblog.com/2006/08/04/innodb-double-write/</a><br><a href="http://www.mysqlperformanceblog.com/2006/08/04/innodb-double-write/" target="_blank" rel="external">http://www.mysqlperformanceblog.com/2011/02/03/how-innodb-handles-redo-logging/</a><br><a href="http://www.mysqlperformanceblog.com/2006/08/04/innodb-double-write/" target="_blank" rel="external">http://dev.mysql.com/doc/refman/5.5/en/forcing-innodb-recovery.html</a></p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/troubleshooting/">troubleshooting</a></li></ul>
 
       </footer>
     
@@ -206,7 +529,7 @@
 
 
     
-      <article id="post-routes-on-vpn-connect-osx" class="article article-type-post" itemscope itemprop="blogPost">
+      <article id="post-sata-host-scan" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -214,14 +537,14 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/06/17/routes-on-vpn-connect-osx/">Автосоздание маршрутов при подключении к VPN на macOS</a>
+      <a class="article-title" href="/2015/06/17/sata-host-scan/">Инициализация сканирования устройств SATA-контроллером в Linux</a>
     </h1>
   
 
       </header>
     
     <div class="article-meta">
-      <a href="/2015/06/17/routes-on-vpn-connect-osx/" class="article-date">
+      <a href="/2015/06/17/sata-host-scan/" class="article-date">
   <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
 </a>
       
@@ -229,337 +552,16 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Не хочется весь трафик пускать через VPN.</p>
-<p>Чтобы при подключении автоматически создавались только нужные маршруты до рабочих ресурсов, нужно указать их в файле с именем <code>/etc/ppp/ip-up</code>. Примерное содержимое файла:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/sh</span></div><div class="line">/sbin/route add confluence.example.com -interface <span class="variable">$1</span></div><div class="line">/sbin/route add monitor.example.com -interface <span class="variable">$1</span></div><div class="line">/sbin/route add staff.example.com -interface <span class="variable">$1</span></div></pre></td></tr></table></figure>
-
+        <p>Некоторые платформы не определяют диски автоматически - после “горячего” подключения в системе их не видно.</p>
+<p>Можно запустить сканирование подключённых к SATA-контроллеру устройств:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">echo &quot;- - -&quot; &gt; /sys/class/scsi_host/host0/scan</div></pre></td></tr></table></figure>
       
     </div>
     
     
       <footer class="article-footer">
         
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/environment/">environment</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vpn/">vpn</a></li></ul>
-
-      </footer>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-    
-      <article id="post-centos-web2py" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/06/17/centos-web2py/">Настройка стека nginx – uwsgi – web2py в CentOS</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      <a href="/2015/06/17/centos-web2py/" class="article-date">
-  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
-</a>
-      
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Как сообщает Википедия, WSGI – это простой и универсальный низкоуровневый интерфейс между веб-сервером и веб-приложением/фреймворком, написанном на Python’е.</p>
-<p>В WSGI существуют понятия “server”, или “gateway”, и “application”, или “framework”. Наиболее распространённым middleware для реализации обмена через WSGI является uWSGI. Для веб-сервера uWSGI выступает в роли “application”, для приложения – в роли “server”.<br>nginx имеет нативную поддержку uwsgi, что не может не радовать.</p>
-<p>В качестве “приложения” в моём случае будет выступать фреймворк web2py – очень удобная штука, позволяет быстро разрабатывать веб-приложения. Имеет встроенный Twitter bootstrap и DAL (Database Abstraction Layer).</p>
-<p>Настройка nginx заключается в создании нового блока <code>server{}</code>, пример конфигурации для web2py:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">server &#123;</div><div class="line">    listen          80;</div><div class="line">    server_name     web2py.example.com;</div><div class="line"></div><div class="line">    location ~* /(\w+)/static/ &#123;</div><div class="line">        root /var/www/web2py/applications/;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    location / &#123;</div><div class="line">        uwsgi_pass      127.0.0.1:9001;</div><div class="line">        include         uwsgi_params;</div><div class="line">        uwsgi_param     UWSGI_SCHEME $scheme;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>Фактически, достаточно указать директиве <code>uwsgi_pass</code> сокет демона uWSGI (TCP/IP или Unix domain) и подключить директивы из файла <code>uwsgi_params</code>, входящего в стандартную поставку nginx.</p>
-<p>Настройка uWSGI заключается в настройке родительского процесса, называемого Emperor, и одного или нескольких “вассалов” – пулов обработчиков. Надо лишь не забыть помимо самого uwsgi установить к нему плагин python:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">yum install uwsgi-plugin-python</div></pre></td></tr></table></figure>
-<p>Дело в том, что uwsgi, как я уже говорил – middleware, бэкендом может служить не только Python, но и PHP, Perl, Ruby, Lua, Go и пр. Вообще uwsgi богат возможностями – поддерживает различные модели управления обработчиками (prefork, threaded, asynchronous/evented, green thread/coroutine), кластеризацию, мониторинг и т.д.</p>
-<p>Вот пример конфигурационного файла “императора” и пула для web2py.</p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="section">[uwsgi]</span></div><div class="line"><span class="attr">uid</span> = uwsgi</div><div class="line"><span class="attr">gid</span> = uwsgi</div><div class="line"><span class="attr">pidfile</span> = /run/uwsgi/uwsgi.pid</div><div class="line"><span class="attr">emperor</span> = /etc/uwsgi.d</div><div class="line"><span class="attr">stats</span> = /run/uwsgi/stats.sock</div><div class="line"><span class="attr">emperor-tyrant</span> = <span class="literal">true</span></div><div class="line"><span class="attr">cap</span> = setgid,setuid</div><div class="line"><span class="attr">plugins</span> = python</div></pre></td></tr></table></figure>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">uwsgi</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">uid</span>&gt;</span>nginx<span class="tag">&lt;/<span class="name">uid</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">gid</span>&gt;</span>nginx<span class="tag">&lt;/<span class="name">gid</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">plugin</span>&gt;</span>python<span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">socket</span>&gt;</span>127.0.0.1:9001<span class="tag">&lt;/<span class="name">socket</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">pythonpath</span>&gt;</span>/var/www/web2py/<span class="tag">&lt;/<span class="name">pythonpath</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">module</span>&gt;</span>wsgihandler<span class="tag">&lt;/<span class="name">module</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">processes</span>&gt;</span>3<span class="tag">&lt;/<span class="name">processes</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">harakiri</span>&gt;</span>60<span class="tag">&lt;/<span class="name">harakiri</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">reload-mercy</span>&gt;</span>8<span class="tag">&lt;/<span class="name">reload-mercy</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">cpu-affinity</span>&gt;</span>1<span class="tag">&lt;/<span class="name">cpu-affinity</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">max-requests</span>&gt;</span>2000<span class="tag">&lt;/<span class="name">max-requests</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">limit-as</span>&gt;</span>512<span class="tag">&lt;/<span class="name">limit-as</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">reload-on-as</span>&gt;</span>256<span class="tag">&lt;/<span class="name">reload-on-as</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">reload-on-rss</span>&gt;</span>192<span class="tag">&lt;/<span class="name">reload-on-rss</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">no-orphans</span>/&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">uwsgi</span>&gt;</span></div></pre></td></tr></table></figure>
-<p>Теперь о подводных камнях.</p>
-<ul>
-<li>Владельцем файла настроек пула <code>/etc/uwsgi.d/web2py.xml</code> должен быть пользователь, указанный в теге , иначе вы увидите ошибку “invalid permissions”.</li>
-<li>Процессы uwsgi не завершаются по SIGTERM. Они лишь перечитывают конфиг. Завершаются же они по SIGQUIT. Конфигурационная опция <code>–die-on-term</code> инвертирует интерпретацию данных сигналов.</li>
-<li>Для работы фреймворка web2py требуется сделать символическую ссылку из <code>/var/www/web2py/handlers/wsgihandler.py</code> в корень фреймворка.</li>
-<li>Доступ к административной части web2py обязательно должен осуществляться по HTTPS.</li>
-<li>Хэш пароля администратора должен храниться в файле <code>parameters_&lt;port&gt;.py</code> в корне фреймворка, где – тот порт, через который осуществляется доступ к веб-приложению. Т.е. если uwsgi запущен на localhost:9001, но вы ставите его за nginx и подключаетесь по HTTPS, то файл должен называться <code>parameters_443.py</code>. В любом случае, корректное имя файла можно узнать из трассировки системных вызовов обработчика uwsgi.</li>
-</ul>
-<p>Ссылки:<br><a href="http://uwsgi-docs.readthedocs.org http://www.web2py.com" target="_blank" rel="external">http://uwsgi-docs.readthedocs.org http://www.web2py.com</a></p>
-
-      
-    </div>
-    
-    
-      <footer class="article-footer">
-        
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/nginx/">nginx</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/uwsgi/">uwsgi</a></li></ul>
-
-      </footer>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-    
-      <article id="post-mysql-query-statistics" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/06/17/mysql-query-statistics/">Статистика времени выполнения запросов в MySQL</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      <a href="/2015/06/17/mysql-query-statistics/" class="article-date">
-  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
-</a>
-      
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>В MySQL существует возможность логирования “медленных” запросов.</p>
-<p>В такой лог будут записаны все запросы, выполнение которых заняло более <code>long_query_time</code> секунд. Безусловно, анализ slow_log’а может помочь найти узкое место. Но, несмотря на то, что <code>long_query_time</code> можно указывать с точностью до микросекунд, бывает необходимо проанализировать общую статистику времени исполнения запросов.</p>
-<p>Командой Percona реализована такая возможность. Посмотреть распределение можно с помощью запросов.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">mysql&gt; SHOW QUERY_RESPONSE_TIME;</div><div class="line">time                   count   total</div><div class="line">0.000001               0       0.000000</div><div class="line">0.000010               0       0.000000</div><div class="line">0.000100               1       0.000072</div><div class="line">0.001000               0       0.000000</div><div class="line">0.010000               0       0.000000</div><div class="line">0.100000               0       0.000000</div><div class="line">1.000000               0       0.000000</div><div class="line">10.000000              8       47.268416</div><div class="line">100.000000             0       0.000000</div><div class="line">1000.000000            0       0.000000</div><div class="line">10000.000000           0       0.000000</div><div class="line">100000.000000          0       0.000000</div><div class="line">1000000.000000         0       0.000000</div><div class="line">TOO LONG QUERY         0       0.000000</div></pre></td></tr></table></figure>
-<p>Эти данные хранятся в таблице <em>INFORMATION_SCHEMA.QUERY_RESPONSE_TIME</em>. Например, приведённый вывод означает, что с момента запуска сервера 1 запрос был выполнен за время 0.000010 с &lt; t &lt; 0.000100 с, общее время выполнения запросов в данной категории – 0.000072 с. Также 8 запросов были выполнены за время 1 с &lt; t &lt; 10 с каждый, общее время – 47.268416 с.<br>Сбросить данные можно с помощью запроса</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mysql&gt; FLUSH QUERY_RESPONSE_TIME;</div></pre></td></tr></table></figure>
-<p>Вообще данный функционал имеет множество различных настроек. Полная документация опубликована на сайте Percona. Разумеется, статистика недоступна в оригинальной MySQL, а лишь в Percona Server и в MariaDB.</p>
-<p>Ссылки:<br><a href="http://www.percona.com/doc/percona-server/5.5/diagnostics/response_time_distribution.html" target="_blank" rel="external">http://www.percona.com/doc/percona-server/5.5/diagnostics/response_time_distribution.html</a><br><a href="https://mariadb.com/kb/en/query_response_time-plugin/" target="_blank" rel="external">https://mariadb.com/kb/en/query_response_time-plugin/</a><br><a href="http://dev.mysql.com/doc/refman/5.5/en/slow-query-log.html" target="_blank" rel="external">http://dev.mysql.com/doc/refman/5.5/en/slow-query-log.html</a></p>
-
-      
-    </div>
-    
-    
-      <footer class="article-footer">
-        
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-
-      </footer>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-    
-      <article id="post-mysql-start-segfault" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/06/17/mysql-start-segfault/">Segfault в MySQL при старте демона</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      <a href="/2015/06/17/mysql-start-segfault/" class="article-date">
-  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
-</a>
-      
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Перезагрузка сервера посредством нажатия кнопки “Reset” чревата последствиями.</p>
-<p>В частности, файловые системы или отдельные файлы могут остаться в неконсистентном состоянии, так как ядро или RAID-контроллер не имеют возможности слить буферы записи или writeback-кэш.</p>
-<p>Однажды после жёсткой перезагрузки сервера демон MySQL перестал запускаться – при старте в нём возникала ошибка сегментации.<br>Первый шаг любой диагностики – просмотр логов демона.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div></pre></td><td class="code"><pre><div class="line">140101  2:04:00 [Note] Plugin &apos;FEDERATED&apos; is disabled.</div><div class="line">InnoDB: The InnoDB memory heap is disabled</div><div class="line">InnoDB: Mutexes and rw_locks use GCC atomic builtins</div><div class="line">InnoDB: Compressed tables use zlib 1.2.3</div><div class="line">140101  2:04:00  InnoDB: Initializing buffer pool, size = 512.0M</div><div class="line">140101  2:04:00  InnoDB: Completed initialization of buffer pool</div><div class="line">140101  2:04:00  InnoDB: highest supported file format is Barracuda.</div><div class="line">InnoDB: Log scan progressed past the checkpoint lsn 9612902337</div><div class="line">140101  2:04:00  InnoDB: Database was not shut down normally!</div><div class="line">InnoDB: Starting crash recovery.</div><div class="line">InnoDB: Reading tablespace information from the .ibd files...</div><div class="line">InnoDB: Restoring possible half-written data pages from the doublewrite</div><div class="line">InnoDB: buffer...</div><div class="line">InnoDB: Doing recovery: scanned up to log sequence number 9612905565</div><div class="line">131231  5:33:44  InnoDB: Starting an apply batch of log records to the database...</div><div class="line">InnoDB: Progress in percents: 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 131231  5:33:44 -</div><div class="line">mysqld got signal 11 ;</div><div class="line">This could be because you hit a bug. It is also possible that this binary or one of the libraries it was linked against is corrupt, improperly built, or misconfigured. This error can also be caused by malfunctioning hardware.</div><div class="line">We will try our best to scrape up some info that will hopefully help diagnose the problem, but since we have already crashed, something is definitely wrong and this may fail.</div><div class="line"></div><div class="line">key_buffer_size=16777216</div><div class="line">read_buffer_size=16777216</div><div class="line">max_used_connections=0</div><div class="line">max_threads=500</div><div class="line">threads_connected=0</div><div class="line">It is possible that mysqld could use up to</div><div class="line">key_buffer_size + (read_buffer_size + sort_buffer_size)*max_threads = 12309856 K bytes of memory</div><div class="line">Hope that&apos;s ok; if not, decrease some variables in the equation.</div><div class="line"></div><div class="line">Thread pointer: 0x0</div><div class="line">Attempting backtrace. You can use the following information to find out where mysqld died. If you see no messages after this, something went terribly wrong...</div><div class="line">stack_bottom = (nil) thread_stack 0x40000</div><div class="line">/usr/sbin/mysqld(my_print_stacktrace+0x24) [0x862214]</div><div class="line">/usr/sbin/mysqld(handle_segfault+0x34d) [0x5a391d]</div><div class="line">/lib/libpthread.so.0(+0xf010) [0x7fcc80a87010]</div><div class="line">/usr/sbin/mysqld() [0x74f1d0]</div><div class="line">/usr/sbin/mysqld() [0x7508ea]</div><div class="line">/usr/sbin/mysqld() [0x73ed6f]</div><div class="line">/usr/sbin/mysqld() [0x7405ab]</div><div class="line">/usr/sbin/mysqld() [0x7c848b]</div><div class="line">/usr/sbin/mysqld() [0x7f337a]</div><div class="line">/usr/sbin/mysqld() [0x789121]</div><div class="line">/lib/libpthread.so.0(+0x68c4) [0x7fcc80a7e8c4]</div><div class="line">/lib/libc.so.6(clone+0x6d) [0x7fcc7fc27fdd]</div><div class="line">The manual page at http://dev.mysql.com/doc/mysql/en/crashing.html contains information that should help you find out what is causing the crash.</div></pre></td></tr></table></figure>
-<p>Видим, что ошибка сегментации возникает при воспроизведении redo-логов. В таком случае надо запустить демон с <code>innodb_force_recovery = 6</code> (включается SRV_FORCE_NO_LOG_REDO). После этого выполнить <code>SET GLOBAL innodb_fast_shutdown = 0</code> и остановить MySQL штатными средствами. Затем отключить <code>innodb_force_recovery</code>. После этого демон запустится.</p>
-<p>И, конечно, никогда не перезагружайте сервера при помощи “Reset” ;)</p>
-<p>Ссылки:<br><a href="http://www.mysqlperformanceblog.com/2006/08/04/innodb-double-write/" target="_blank" rel="external">http://www.mysqlperformanceblog.com/2006/08/04/innodb-double-write/</a><br><a href="http://www.mysqlperformanceblog.com/2006/08/04/innodb-double-write/" target="_blank" rel="external">http://www.mysqlperformanceblog.com/2011/02/03/how-innodb-handles-redo-logging/</a><br><a href="http://www.mysqlperformanceblog.com/2006/08/04/innodb-double-write/" target="_blank" rel="external">http://dev.mysql.com/doc/refman/5.5/en/forcing-innodb-recovery.html</a></p>
-
-      
-    </div>
-    
-    
-      <footer class="article-footer">
-        
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/troubleshooting/">troubleshooting</a></li></ul>
-
-      </footer>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-    
-      <article id="post-nginx-bind-error" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/06/17/nginx-bind-error/">nginx не запускается, безуспешно пытается bind 0.0.0.0:80</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      <a href="/2015/06/17/nginx-bind-error/" class="article-date">
-  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
-</a>
-      
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>При запуске nginx столкнулся с ошибкой:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">* Checking nginx&apos; configuration ...</div><div class="line">nginx: the configuration file /etc/nginx/nginx.conf syntax is ok</div><div class="line">nginx: configuration file /etc/nginx/nginx.conf test is successful                               [ ok ]</div><div class="line"> * Starting nginx ...</div><div class="line">nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)</div></pre></td></tr></table></figure>
-<p>При этом <code>listen 80;</code> в конфигах не указывается. А забиндить <code>0.0.0.0:80</code> nginx не смог, так как на 80 порту на <code>localhost</code> слушает Apache.<br>Оказалось, что в одном из конфигов в <code>/etc/nginx/ssl-enabled</code>, которые подключаются директивой <code>include</code>, не указана директива <code>listen</code> вовсе. И <code>nginx</code> брал для неё значение по умолчанию, то есть <code>0.0.0.0:80</code></p>
-
-      
-    </div>
-    
-    
-      <footer class="article-footer">
-        
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/nginx/">nginx</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/troubleshooting/">troubleshooting</a></li></ul>
-
-      </footer>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-    
-      <article id="post-nscd" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/06/17/nscd/">Кэширование ответов DNS с помощью nscd</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      <a href="/2015/06/17/nscd/" class="article-date">
-  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
-</a>
-      
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>nscd - Name Services Caching Daemon.</p>
-<p>nscd кэширует ответы различных служб имён. Чаще всего его настраивают ради кэширования ответов DNS. Не стоит путать nscd с кэширующим DNS-сервером – он им не является, кэш используется локально. Для использования кэширования в файле <code>/etc/nsswitch.conf</code> строка <code>hosts</code> должна иметь следующий вид:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">hosts: cache files dns</div></pre></td></tr></table></figure>
-<p>nscd является гибким инструментом, позволяет настраивать Positive и Negative TTL, persistence кэша при перезапуске демона, особое поведение при запросе имени, для которого есть запись в <code>/etc/hosts</code>. В man-страницах nscd и nscd.conf все нюансы расписаны очень подробно.</p>
-
-      
-    </div>
-    
-    
-      <footer class="article-footer">
-        
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/dns/">dns</a></li></ul>
-
-      </footer>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-    
-      <article id="post-dnsmasq" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/06/17/dnsmasq/">dnsmasq и /etc/hosts</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      <a href="/2015/06/17/dnsmasq/" class="article-date">
-  <time datetime="2015-06-16T21:00:00.000Z" itemprop="datePublished">2015-06-17</time>
-</a>
-      
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Я использую dnsmasq в качестве ресолвера и DHCP-сервера для офиса. Демон также ресолвит имена из локального файла hosts.<br>Если в hosts указано два имени через запятую для одного IP-адреса, то dnsmasq будет ресолвить только последнее. Чтобы избежать этой ситуации, достаточно создать две строчки для этого IP в hosts.</p>
-
-      
-    </div>
-    
-    
-      <footer class="article-footer">
-        
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/dhcp/">dhcp</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/dns/">dns</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hardware/">hardware</a></li></ul>
 
       </footer>
     
