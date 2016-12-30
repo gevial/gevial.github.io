@@ -1,0 +1,7 @@
+targets:
+  serve:
+    cmd: "hexo"
+    args: ["serve"]
+  deploy:
+    cmd: "hexo"
+    args: ["generate", "--deploy"]
