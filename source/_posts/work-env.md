@@ -43,12 +43,12 @@ xkb_symbols "winkeys" {
 
 Также меня не устраивают дефолтные цвета подсветки диффов в git-plus. Поэтому я добавил вот такой кусок кода в свой `styles.less`:
 ```less
-atom-text-editor::shadow {
-  .markup.removed.diff {
+atom-text-editor.editor {
+  .syntax--markup.syntax--removed.syntax--diff {
     border-bottom: none!important;
     background-color: tint(@syntax-color-removed, 30%);
   }
-  .markup.added.diff {
+  .syntax--markup.syntax--added.syntax--diff {
     border-bottom: none!important;
     background-color: tint(@syntax-color-added, 30%);
   }
