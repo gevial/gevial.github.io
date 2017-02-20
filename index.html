@@ -43,6 +43,54 @@
   </div>
 </header>
     <section id="main" class="outer">
+      <article id="post-mysql-uptime-monitoring" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/02/20/mysql-uptime-monitoring/">Мониторинг аптайма MySQL</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2017/02/20/mysql-uptime-monitoring/" class="article-date">
+  <time datetime="2017-02-20T12:13:45.000Z" itemprop="datePublished">2017-02-20</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Любая система мониторинга доступности сервиса выполняет проверки с определённым интервалом.<br>Зачастую он составляет 60 секунд. В таком случае кратковременные перебои в работе сервиса (например, перезапуски) обнаружены не будут.<br>Чтобы обойти эту неприятную ситуацию, можно мониторить аптайм демона. Для MySQL он выводится командой<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SHOW</span> <span class="keyword">GLOBAL</span> <span class="keyword">STATUS</span> <span class="keyword">LIKE</span> <span class="string">"UPTIME"</span>;</div></pre></td></tr></table></figure></p>
+<p>В отсутствие перезапусков (т.е. в штатной работе) эта метрика должна только возрастать. Если обнаружена отрицательная динамика - демон был перезапущен.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/monitoring/">monitoring</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+    
       <article id="post-robustness-principle" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -610,7 +658,7 @@
 <li>minimap</li>
 <li>go-plus</li>
 </ul>
-<p>Также меня не устраивают дефолтные цвета подсветки диффов в git-plus. Поэтому я добавил вот такой кусок кода в свой <code>styles.less</code>:<br><figure class="highlight less"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">atom-text-editor</span>::shadow &#123;</div><div class="line">  .markup.removed.diff &#123;</div><div class="line">    <span class="attribute">border-bottom</span>: none<span class="meta">!important</span>;</div><div class="line">    <span class="attribute">background-color</span>: tint(<span class="variable">@syntax-color-removed</span>, <span class="number">30%</span>);</div><div class="line">  &#125;</div><div class="line">  <span class="selector-class">.markup</span><span class="selector-class">.added</span><span class="selector-class">.diff</span> &#123;</div><div class="line">    <span class="attribute">border-bottom</span>: none<span class="meta">!important</span>;</div><div class="line">    <span class="attribute">background-color</span>: tint(<span class="variable">@syntax-color-added</span>, <span class="number">30%</span>);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>Также меня не устраивают дефолтные цвета подсветки диффов в git-plus. Поэтому я добавил вот такой кусок кода в свой <code>styles.less</code>:<br><figure class="highlight less"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="selector-tag">atom-text-editor</span><span class="selector-class">.editor</span> &#123;</div><div class="line">  <span class="selector-class">.syntax--markup</span><span class="selector-class">.syntax--removed</span><span class="selector-class">.syntax--diff</span> &#123;</div><div class="line">    <span class="attribute">border-bottom</span>: none<span class="meta">!important</span>;</div><div class="line">    <span class="attribute">background-color</span>: tint(<span class="variable">@syntax-color-removed</span>, <span class="number">30%</span>);</div><div class="line">  &#125;</div><div class="line">  <span class="selector-class">.syntax--markup</span><span class="selector-class">.syntax--added</span><span class="selector-class">.syntax--diff</span> &#123;</div><div class="line">    <span class="attribute">border-bottom</span>: none<span class="meta">!important</span>;</div><div class="line">    <span class="attribute">background-color</span>: tint(<span class="variable">@syntax-color-added</span>, <span class="number">30%</span>);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <h2 id="Build"><a href="#Build" class="headerlink" title="Build"></a>Build</h2><p>Удобно писать код в Atom и тестировать его запуском на удалённом сервере через SSH. Для этого я написал build-сценарий для соответствующего модуля:</p>
 <figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">  <span class="attr">"name"</span>: <span class="string">"Runscript"</span>,</div><div class="line">  <span class="attr">"cmd"</span>: <span class="string">"echo 'Choose target'"</span>,</div><div class="line">  <span class="attr">"sh"</span>: <span class="literal">true</span>,</div><div class="line">  <span class="attr">"targets"</span>: &#123;</div><div class="line">    <span class="attr">"host_accessed_with_fabric"</span>: &#123; <span class="attr">"cmd"</span>: <span class="string">"fab -f /home/gena/rexec.py -H srvname runscript:\"&#123;FILE_ACTIVE&#125;\""</span> &#125;,</div><div class="line">    <span class="attr">"host_accessed_with_plain_ssh"</span>: &#123; <span class="attr">"cmd"</span>: <span class="string">"scp &#123;FILE_ACTIVE&#125; srvname:~/atom-build.script; ssh srvname ~g.aleksandrov/atom-build.script; ssh srvname rm ~g.aleksandrov/atom-build.script"</span> &#125;,</div><div class="line">    <span class="attr">"local_python"</span>: &#123; <span class="attr">"cmd"</span>: <span class="string">"python &#123;FILE_ACTIVE&#125;"</span> &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <h2 id="ssh-config"><a href="#ssh-config" class="headerlink" title=".ssh/config"></a>.ssh/config</h2><p>Мы используем SSH-шлюз, доступ на сервера осуществляется через него. Для тестирования скриптов это не очень удобно, иногда нужен прямой доступ. Его можно получить, настроив SSH-клиент, вот конфиг:</p>
@@ -644,51 +692,6 @@
 
 
     
-      <article id="post-fio" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  <h1 itemprop="name">
-    <a class="article-title" href="https://habrahabr.ru/post/154235/" target="_blank" itemprop="url">Как правильно мерять производительность диска</a>
-  </h1>
-
-      </header>
-    
-    <div class="article-meta">
-      <a href="/2016/06/30/fio/" class="article-date">
-  <time datetime="2016-06-30T09:00:00.000Z" itemprop="datePublished">2016-06-30</time>
-</a>
-      
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Методология измерения параметров хранилищ. Must read.</p>
-
-      
-    </div>
-    
-    
-      <footer class="article-footer">
-        
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/performance/">performance</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/storage/">storage</a></li></ul>
-
-      </footer>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-    
       <nav id="page-nav">
         <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/">Далее &raquo;</a>
       </nav>
@@ -697,7 +700,7 @@
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2016 Gennady Aleksandrov&nbsp;
+      &copy; 2017 Gennady Aleksandrov&nbsp;
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/ppoffice">PPOffice</a>
     </div>
   </div>

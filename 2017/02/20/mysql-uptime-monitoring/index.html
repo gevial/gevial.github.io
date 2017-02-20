@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Мониторинг аптайма MySQL - Gevial&#39;s Tech Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Любая система мониторинга доступности сервиса выполняет проверки с определённым интервалом.Зачастую он составляет 60 секунд. В таком случае кратковременные перебои в работе сервиса (например, перезапу">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Мониторинг аптайма MySQL">
+<meta property="og:url" content="https://gevial.github.io/2017/02/20/mysql-uptime-monitoring/index.html">
+<meta property="og:site_name" content="Gevial's Tech Blog">
+<meta property="og:description" content="Любая система мониторинга доступности сервиса выполняет проверки с определённым интервалом.Зачастую он составляет 60 секунд. В таком случае кратковременные перебои в работе сервиса (например, перезапу">
+<meta property="og:updated_time" content="2017-02-20T12:19:15.656Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Мониторинг аптайма MySQL">
+<meta name="twitter:description" content="Любая система мониторинга доступности сервиса выполняет проверки с определённым интервалом.Зачастую он составляет 60 секунд. В таком случае кратковременные перебои в работе сервиса (например, перезапу">
+  
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/tags">Tags</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://gevial.github.io"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <section id="main" class="outer"><article id="post-mysql-uptime-monitoring" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Мониторинг аптайма MySQL
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2017/02/20/mysql-uptime-monitoring/" class="article-date">
+  <time datetime="2017-02-20T12:13:45.000Z" itemprop="datePublished">2017-02-20</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Любая система мониторинга доступности сервиса выполняет проверки с определённым интервалом.<br>Зачастую он составляет 60 секунд. В таком случае кратковременные перебои в работе сервиса (например, перезапуски) обнаружены не будут.<br>Чтобы обойти эту неприятную ситуацию, можно мониторить аптайм демона. Для MySQL он выводится командой<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SHOW</span> <span class="keyword">GLOBAL</span> <span class="keyword">STATUS</span> <span class="keyword">LIKE</span> <span class="string">"UPTIME"</span>;</div></pre></td></tr></table></figure></p>
+<p>В отсутствие перезапусков (т.е. в штатной работе) эта метрика должна только возрастать. Если обнаружена отрицательная динамика - демон был перезапущен.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/monitoring/">monitoring</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2016/12/30/robustness-principle/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Правило Джона Постела&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 Gennady Aleksandrov&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/ppoffice">PPOffice</a>
+    </div>
+  </div>
+</footer>
+    
+
+<script src="/js/jquery.min.js"></script>
+
+
+
+<script src="/js/script.js"></script>
+  </div>
+</body>
+</html>
