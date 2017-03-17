@@ -1,7 +1,7 @@
 ---
 title: 'Граф зависимостей ресурсов в Puppet'
 date: 2017-03-17 12:09:29
-tags: [puppet, infrastructure]
+tags: [puppet, infrastructure, troubleshooting]
 ---
 При настройке нового хоста наткнулся на циклическую зависимость в каталоге.
 ```
