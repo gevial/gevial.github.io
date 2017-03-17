@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Граф зависимостей ресурсов в Puppet - Gevial&#39;s Tech Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="При настройке нового хоста наткнулся на циклическую зависимость в каталоге.1234567891011root@influxdb1.example.com:~# puppet agent --testInfo: Retrieving pluginfactsInfo: Retrieving pluginDevice &amp;quot">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Граф зависимостей ресурсов в Puppet">
+<meta property="og:url" content="https://gevial.github.io/2017/03/17/puppet-graphs/index.html">
+<meta property="og:site_name" content="Gevial's Tech Blog">
+<meta property="og:description" content="При настройке нового хоста наткнулся на циклическую зависимость в каталоге.1234567891011root@influxdb1.example.com:~# puppet agent --testInfo: Retrieving pluginfactsInfo: Retrieving pluginDevice &amp;quot">
+<meta property="og:updated_time" content="2017-03-17T09:22:04.051Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Граф зависимостей ресурсов в Puppet">
+<meta name="twitter:description" content="При настройке нового хоста наткнулся на циклическую зависимость в каталоге.1234567891011root@influxdb1.example.com:~# puppet agent --testInfo: Retrieving pluginfactsInfo: Retrieving pluginDevice &amp;quot">
+  
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/tags">Tags</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://gevial.github.io"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <section id="main" class="outer"><article id="post-puppet-graphs" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Граф зависимостей ресурсов в Puppet
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      <a href="/2017/03/17/puppet-graphs/" class="article-date">
+  <time datetime="2017-03-17T09:09:29.000Z" itemprop="datePublished">2017-03-17</time>
+</a>
+      
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>При настройке нового хоста наткнулся на циклическую зависимость в каталоге.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">root@influxdb1.example.com:~# puppet agent --test</div><div class="line">Info: Retrieving pluginfacts</div><div class="line">Info: Retrieving plugin</div><div class="line">Device &quot;eth1&quot; does not exist.</div><div class="line">Could not retrieve fact=&apos;tw_mysql_basedir&apos;, resolution=&apos;&lt;anonymous&gt;&apos;: No such file or directory - /var/lib/mysql</div><div class="line">Info: Caching catalog for influxdb1.example.com</div><div class="line">Info: Applying configuration version &apos;79f72b0&apos;</div><div class="line">Error: Failed to apply catalog: Found 1 dependency cycle:</div><div class="line">(Anchor[apt::source::acmecorp-local] =&gt; Apt::Source[acmecorp-local] =&gt; Class[Acme_apt_sourcelist] =&gt; Stage[first] =&gt; Stage[second] =&gt; Class[Acme_common_deb] =&gt; Exec[default-kernel-delete] =&gt; Class[Acme_common_deb] =&gt; Stage[second] =&gt; Stage[main] =&gt; Class[Influxdb::Repo::Apt] =&gt; Apt::Source[repos.influxdata.com] =&gt; File[repos.influxdata.com.list] =&gt; Exec[apt_update] =&gt; Class[Apt::Update] =&gt; Stage[first])</div><div class="line">Try the &apos;--graph&apos; option and opening the resulting &apos;.dot&apos; file in OmniGraffle or GraphViz</div><div class="line">root@influxdb1.example.com:~#</div></pre></td></tr></table></figure></p>
+<p>Агент заботливо подсказал, как проще разобраться с проблемой. Достаточно дать агенту опцию <code>--graph</code>, и он сгенерирует dot-файл с графом зависимостей проблемных ресурсов.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">root@influxdb1.example.com:~# puppet agent --test --graph</div><div class="line">Info: Retrieving pluginfacts</div><div class="line">Info: Retrieving plugin</div><div class="line">Device &quot;eth1&quot; does not exist.</div><div class="line">Could not retrieve fact=&apos;tw_mysql_basedir&apos;, resolution=&apos;&lt;anonymous&gt;&apos;: No such file or directory - /var/lib/mysql</div><div class="line">Info: Caching catalog for influxdb1.example.com</div><div class="line">Info: Applying configuration version &apos;79f72b0&apos;</div><div class="line">Error: Failed to apply catalog: Found 1 dependency cycle:</div><div class="line">(Anchor[apt::source::acmecorp-local] =&gt; Apt::Source[acmecorp-local] =&gt; Class[Acme_apt_sourcelist] =&gt; Stage[first] =&gt; Stage[second] =&gt; Class[Acme_common_deb] =&gt; Exec[default-kernel-delete] =&gt; Class[Acme_common_deb] =&gt; Stage[second] =&gt; Stage[main] =&gt; Class[Influxdb::Repo::Apt] =&gt; Apt::Source[repos.influxdata.com] =&gt; File[repos.influxdata.com.list] =&gt; Exec[apt_update] =&gt; Class[Apt::Update] =&gt; Stage[first])</div><div class="line">Cycle graph written to /var/lib/puppet/state/graphs/cycles.dot.</div><div class="line">root@influxdb1.example.com:~#</div></pre></td></tr></table></figure></p>
+<p>Этот файл можно забрать на свою тачку и превратить в, например, PNG следующей командой:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">dot -Tpng -o cycle.png -Lg Desktop/cycles.dot</div></pre></td></tr></table></figure></p>
+<p>Команда <code>dot</code> - часть пакета <code>graphviz</code>. Если вы работаете на Маке, то вместо этого можно воспользоваться <a href="https://www.omnigroup.com/omnigraffle/" target="_blank" rel="external">OmniGraffle</a>.</p>
+
+      
+    </div>
+    
+    
+      <footer class="article-footer">
+        
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/infrastructure/">infrastructure</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/puppet/">puppet</a></li></ul>
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2017/02/20/go-compile-time-vars/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Compile Time Variables in Go&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+
+
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 Gennady Aleksandrov&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/ppoffice">PPOffice</a>
+    </div>
+  </div>
+</footer>
+    
+
+<script src="/js/jquery.min.js"></script>
+
+
+
+<script src="/js/script.js"></script>
+  </div>
+</body>
+</html>
